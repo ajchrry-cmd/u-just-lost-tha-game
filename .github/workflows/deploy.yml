@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - claude/game-master-mirror-app-AJ7vb
   workflow_dispatch:
 
 permissions:
