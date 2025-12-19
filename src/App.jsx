@@ -11,7 +11,16 @@ function App() {
       players: [],
       currentEvent: null,
       gameTitle: 'Epic Game Night',
-      theme: 'default'
+      theme: 'default',
+      mapGrid: {
+        rows: 5,
+        cols: 5,
+        tiles: Array(25).fill().map((_, i) => ({
+          id: i,
+          type: 'normal',
+          label: ''
+        }))
+      }
     }
   })
 

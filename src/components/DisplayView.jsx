@@ -8,7 +8,16 @@ export default function DisplayView({ onBack }) {
       players: [],
       currentEvent: null,
       gameTitle: 'Epic Game Night',
-      theme: 'default'
+      theme: 'default',
+      mapGrid: {
+        rows: 5,
+        cols: 5,
+        tiles: Array(25).fill().map((_, i) => ({
+          id: i,
+          type: 'normal',
+          label: ''
+        }))
+      }
     }
   })
 
@@ -30,7 +39,9 @@ export default function DisplayView({ onBack }) {
     }
   }, [])
 
-  const sortedPlayers = [...gameState.players].sort((a, b) => b.score - a.score)
+  const getPlayersAtPosition = (position) => {
+    return gameState.players.filter(p => p.position === position)
+  }
 
   return (
     <div className="display-view">
@@ -51,43 +62,110 @@ export default function DisplayView({ onBack }) {
         </section>
       )}
 
-      <section className="scoreboard">
-        <h2>🏆 Scoreboard</h2>
-        <div className="players-grid">
-          {sortedPlayers.map((player, index) => (
-            <div
-              key={player.id}
-              className={`player-display ${player.status}`}
-              style={{ borderColor: player.color }}
-            >
-              <div className="player-rank">
-                {index === 0 && '👑'}
-                {index === 1 && '🥈'}
-                {index === 2 && '🥉'}
-                {index > 2 && `#${index + 1}`}
+      <section className="map-section">
+        <div className="game-map" style={{
+          gridTemplateColumns: `repeat(${gameState.mapGrid.cols}, 1fr)`,
+          gridTemplateRows: `repeat(${gameState.mapGrid.rows}, 1fr)`
+        }}>
+          {gameState.mapGrid.tiles.map((tile, index) => {
+            const playersHere = getPlayersAtPosition(index)
+            return (
+              <div key={tile.id} className="map-tile" data-tile-type={tile.type}>
+                <span className="tile-number">{index}</span>
+                {tile.label && <span className="tile-label">{tile.label}</span>}
+                {playersHere.length > 0 && (
+                  <div className="tile-players">
+                    {playersHere.map(player => (
+                      <div
+                        key={player.id}
+                        className="player-marker"
+                        style={{ backgroundColor: player.color }}
+                        title={player.name}
+                      >
+                        {player.name.charAt(0)}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div className="player-name">{player.name}</div>
-              <div className="player-score-display">{player.score}</div>
-              {player.status !== 'active' && (
-                <div className="player-status-badge">{player.status}</div>
-              )}
-            </div>
-          ))}
+            )
+          })}
         </div>
+      </section>
 
+      <section className="players-bar">
         {gameState.players.length === 0 && (
           <div className="empty-state">
             <p>No players yet!</p>
             <p className="hint">Add players from the Game Master control panel</p>
           </div>
         )}
-      </section>
 
-      <footer className="display-footer">
-        <div className="player-count">
-          {gameState.players.length} {gameState.players.length === 1 ? 'Player' : 'Players'}
-        </div>
-      </footer>
+        {gameState.players.map(player => (
+          <div
+            key={player.id}
+            className={`player-panel ${player.status}`}
+            style={{ borderColor: player.color }}
+          >
+            <div className="player-header">
+              <h3 style={{ color: player.color }}>{player.name}</h3>
+              <div className="player-score-badge">{player.score}pts</div>
+            </div>
+
+            <div className="player-stats-bar">
+              <div className="stat">
+                <span className="stat-icon">❤️</span>
+                <div className="stat-bar">
+                  <div
+                    className="stat-fill health"
+                    style={{ width: `${Math.min(100, player.stats?.health || 0)}%` }}
+                  />
+                </div>
+                <span className="stat-value">{player.stats?.health || 0}</span>
+              </div>
+
+              <div className="stat">
+                <span className="stat-icon">⚡</span>
+                <div className="stat-bar">
+                  <div
+                    className="stat-fill energy"
+                    style={{ width: `${Math.min(100, player.stats?.energy || 0)}%` }}
+                  />
+                </div>
+                <span className="stat-value">{player.stats?.energy || 0}</span>
+              </div>
+
+              <div className="stat">
+                <span className="stat-icon">⚔️</span>
+                <span className="stat-value">{player.stats?.attack || 0}</span>
+              </div>
+
+              <div className="stat">
+                <span className="stat-icon">🛡️</span>
+                <span className="stat-value">{player.stats?.defense || 0}</span>
+              </div>
+            </div>
+
+            <div className="player-inventory-bar">
+              <span className="inventory-label">🎒</span>
+              <div className="inventory-items">
+                {player.inventory?.map(item => (
+                  <div key={item.id} className="inventory-item" title={item.name}>
+                    {item.name}
+                  </div>
+                ))}
+                {Array.from({ length: 4 - (player.inventory?.length || 0) }).map((_, i) => (
+                  <div key={`empty-${i}`} className="inventory-item empty">—</div>
+                ))}
+              </div>
+            </div>
+
+            {player.status !== 'active' && (
+              <div className="player-status-overlay">{player.status}</div>
+            )}
+          </div>
+        ))}
+      </section>
     </div>
   )
 }

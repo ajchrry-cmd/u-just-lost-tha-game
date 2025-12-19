@@ -6,6 +6,8 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   const [newEventTitle, setNewEventTitle] = useState('')
   const [newEventDescription, setNewEventDescription] = useState('')
   const [editingPlayer, setEditingPlayer] = useState(null)
+  const [selectedPlayer, setSelectedPlayer] = useState(null)
+  const [newItemName, setNewItemName] = useState('')
 
   const addPlayer = () => {
     if (newPlayerName.trim()) {
@@ -18,7 +20,15 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
             name: newPlayerName,
             score: 0,
             status: 'active',
-            color: getRandomColor()
+            color: getRandomColor(),
+            position: 0,
+            stats: {
+              health: 100,
+              energy: 100,
+              attack: 10,
+              defense: 10
+            },
+            inventory: []
           }
         ]
       })
@@ -31,6 +41,7 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
       ...gameState,
       players: gameState.players.filter(p => p.id !== playerId)
     })
+    if (selectedPlayer === playerId) setSelectedPlayer(null)
   }
 
   const updatePlayerScore = (playerId, change) => {
@@ -59,6 +70,83 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
         p.id === playerId ? { ...p, status } : p
       )
     })
+  }
+
+  const updatePlayerPosition = (playerId, newPosition) => {
+    setGameState({
+      ...gameState,
+      players: gameState.players.map(p =>
+        p.id === playerId ? { ...p, position: newPosition } : p
+      )
+    })
+  }
+
+  const updatePlayerStat = (playerId, stat, value) => {
+    setGameState({
+      ...gameState,
+      players: gameState.players.map(p =>
+        p.id === playerId ? { ...p, stats: { ...p.stats, [stat]: Math.max(0, value) } } : p
+      )
+    })
+  }
+
+  const addItemToPlayer = (playerId) => {
+    if (!newItemName.trim()) return
+
+    setGameState({
+      ...gameState,
+      players: gameState.players.map(p => {
+        if (p.id === playerId && p.inventory.length < 4) {
+          return {
+            ...p,
+            inventory: [...p.inventory, { id: Date.now(), name: newItemName }]
+          }
+        }
+        return p
+      })
+    })
+    setNewItemName('')
+  }
+
+  const removeItemFromPlayer = (playerId, itemId) => {
+    setGameState({
+      ...gameState,
+      players: gameState.players.map(p =>
+        p.id === playerId
+          ? { ...p, inventory: p.inventory.filter(item => item.id !== itemId) }
+          : p
+      )
+    })
+  }
+
+  const movePlayerUp = (playerId) => {
+    const player = gameState.players.find(p => p.id === playerId)
+    if (!player) return
+    const newPos = player.position - gameState.mapGrid.cols
+    if (newPos >= 0) updatePlayerPosition(playerId, newPos)
+  }
+
+  const movePlayerDown = (playerId) => {
+    const player = gameState.players.find(p => p.id === playerId)
+    if (!player) return
+    const newPos = player.position + gameState.mapGrid.cols
+    if (newPos < gameState.mapGrid.tiles.length) updatePlayerPosition(playerId, newPos)
+  }
+
+  const movePlayerLeft = (playerId) => {
+    const player = gameState.players.find(p => p.id === playerId)
+    if (!player) return
+    if (player.position % gameState.mapGrid.cols > 0) {
+      updatePlayerPosition(playerId, player.position - 1)
+    }
+  }
+
+  const movePlayerRight = (playerId) => {
+    const player = gameState.players.find(p => p.id === playerId)
+    if (!player) return
+    if ((player.position + 1) % gameState.mapGrid.cols !== 0) {
+      updatePlayerPosition(playerId, player.position + 1)
+    }
   }
 
   const setCurrentEvent = () => {
@@ -103,6 +191,8 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2']
     return colors[Math.floor(Math.random() * colors.length)]
   }
+
+  const selectedPlayerData = gameState.players.find(p => p.id === selectedPlayer)
 
   return (
     <div className="game-master">
@@ -179,12 +269,132 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                     <option value="safe">Safe</option>
                     <option value="danger">In Danger</option>
                   </select>
+                  <button
+                    className={selectedPlayer === player.id ? "primary-button" : ""}
+                    onClick={() => setSelectedPlayer(player.id)}
+                  >
+                    {selectedPlayer === player.id ? '✓ Selected' : 'Select'}
+                  </button>
                   <button className="danger-button" onClick={() => removePlayer(player.id)}>Remove</button>
                 </div>
               </div>
             ))}
           </div>
         </section>
+
+        {selectedPlayerData && (
+          <>
+            <section className="section player-control">
+              <h2>🎮 Control: {selectedPlayerData.name}</h2>
+
+              <div className="control-group">
+                <h3>📍 Position Control</h3>
+                <p>Current Position: Tile {selectedPlayerData.position}</p>
+                <div className="position-controls">
+                  <button onClick={() => movePlayerUp(selectedPlayer)}>⬆️ Up</button>
+                  <div className="horizontal-controls">
+                    <button onClick={() => movePlayerLeft(selectedPlayer)}>⬅️ Left</button>
+                    <button onClick={() => movePlayerRight(selectedPlayer)}>➡️ Right</button>
+                  </div>
+                  <button onClick={() => movePlayerDown(selectedPlayer)}>⬇️ Down</button>
+                </div>
+                <div className="direct-position">
+                  <label>Or jump to tile:</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max={gameState.mapGrid.tiles.length - 1}
+                    value={selectedPlayerData.position}
+                    onChange={(e) => updatePlayerPosition(selectedPlayer, parseInt(e.target.value) || 0)}
+                  />
+                </div>
+              </div>
+
+              <div className="control-group">
+                <h3>📊 Stats</h3>
+                <div className="stats-grid">
+                  <div className="stat-control">
+                    <label>❤️ Health</label>
+                    <div className="stat-buttons">
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'health', selectedPlayerData.stats.health - 10)}>-10</button>
+                      <input
+                        type="number"
+                        value={selectedPlayerData.stats.health}
+                        onChange={(e) => updatePlayerStat(selectedPlayer, 'health', parseInt(e.target.value) || 0)}
+                      />
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'health', selectedPlayerData.stats.health + 10)}>+10</button>
+                    </div>
+                  </div>
+                  <div className="stat-control">
+                    <label>⚡ Energy</label>
+                    <div className="stat-buttons">
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'energy', selectedPlayerData.stats.energy - 10)}>-10</button>
+                      <input
+                        type="number"
+                        value={selectedPlayerData.stats.energy}
+                        onChange={(e) => updatePlayerStat(selectedPlayer, 'energy', parseInt(e.target.value) || 0)}
+                      />
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'energy', selectedPlayerData.stats.energy + 10)}>+10</button>
+                    </div>
+                  </div>
+                  <div className="stat-control">
+                    <label>⚔️ Attack</label>
+                    <div className="stat-buttons">
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'attack', selectedPlayerData.stats.attack - 5)}>-5</button>
+                      <input
+                        type="number"
+                        value={selectedPlayerData.stats.attack}
+                        onChange={(e) => updatePlayerStat(selectedPlayer, 'attack', parseInt(e.target.value) || 0)}
+                      />
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'attack', selectedPlayerData.stats.attack + 5)}>+5</button>
+                    </div>
+                  </div>
+                  <div className="stat-control">
+                    <label>🛡️ Defense</label>
+                    <div className="stat-buttons">
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'defense', selectedPlayerData.stats.defense - 5)}>-5</button>
+                      <input
+                        type="number"
+                        value={selectedPlayerData.stats.defense}
+                        onChange={(e) => updatePlayerStat(selectedPlayer, 'defense', parseInt(e.target.value) || 0)}
+                      />
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'defense', selectedPlayerData.stats.defense + 5)}>+5</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="control-group">
+                <h3>🎒 Inventory ({selectedPlayerData.inventory.length}/4)</h3>
+                <div className="inventory-controls">
+                  {selectedPlayerData.inventory.length < 4 && (
+                    <div className="add-item">
+                      <input
+                        type="text"
+                        value={newItemName}
+                        onChange={(e) => setNewItemName(e.target.value)}
+                        placeholder="Item name"
+                        onKeyPress={(e) => e.key === 'Enter' && addItemToPlayer(selectedPlayer)}
+                      />
+                      <button onClick={() => addItemToPlayer(selectedPlayer)}>Add Item</button>
+                    </div>
+                  )}
+                  <div className="items-list">
+                    {selectedPlayerData.inventory.map(item => (
+                      <div key={item.id} className="item-chip">
+                        <span>{item.name}</span>
+                        <button onClick={() => removeItemFromPlayer(selectedPlayer, item.id)}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                  {selectedPlayerData.inventory.length === 0 && (
+                    <p className="empty-inventory">No items yet</p>
+                  )}
+                </div>
+              </div>
+            </section>
+          </>
+        )}
 
         <section className="section event-management">
           <h2>📢 Current Event</h2>
@@ -217,9 +427,6 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
         <section className="section quick-actions">
           <h2>⚡ Quick Actions</h2>
           <div className="action-buttons">
-            <button onClick={() => setCurrentEvent()}>
-              🎲 Random Event
-            </button>
             <button onClick={() => {
               const player = gameState.players[Math.floor(Math.random() * gameState.players.length)]
               if (player) {
