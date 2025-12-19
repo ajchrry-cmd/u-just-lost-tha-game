@@ -23,10 +23,8 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
             color: getRandomColor(),
             position: 0,
             stats: {
-              health: 100,
-              energy: 100,
-              attack: 10,
-              defense: 10
+              power: 50,
+              gold: 100
             },
             inventory: []
           }
@@ -314,51 +312,27 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                 <h3>📊 Stats</h3>
                 <div className="stats-grid">
                   <div className="stat-control">
-                    <label>❤️ Health</label>
+                    <label>⚡ Power</label>
                     <div className="stat-buttons">
-                      <button onClick={() => updatePlayerStat(selectedPlayer, 'health', selectedPlayerData.stats.health - 10)}>-10</button>
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'power', selectedPlayerData.stats.power - 10)}>-10</button>
                       <input
                         type="number"
-                        value={selectedPlayerData.stats.health}
-                        onChange={(e) => updatePlayerStat(selectedPlayer, 'health', parseInt(e.target.value) || 0)}
+                        value={selectedPlayerData.stats.power}
+                        onChange={(e) => updatePlayerStat(selectedPlayer, 'power', parseInt(e.target.value) || 0)}
                       />
-                      <button onClick={() => updatePlayerStat(selectedPlayer, 'health', selectedPlayerData.stats.health + 10)}>+10</button>
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'power', selectedPlayerData.stats.power + 10)}>+10</button>
                     </div>
                   </div>
                   <div className="stat-control">
-                    <label>⚡ Energy</label>
+                    <label>💰 Gold</label>
                     <div className="stat-buttons">
-                      <button onClick={() => updatePlayerStat(selectedPlayer, 'energy', selectedPlayerData.stats.energy - 10)}>-10</button>
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'gold', selectedPlayerData.stats.gold - 10)}>-10</button>
                       <input
                         type="number"
-                        value={selectedPlayerData.stats.energy}
-                        onChange={(e) => updatePlayerStat(selectedPlayer, 'energy', parseInt(e.target.value) || 0)}
+                        value={selectedPlayerData.stats.gold}
+                        onChange={(e) => updatePlayerStat(selectedPlayer, 'gold', parseInt(e.target.value) || 0)}
                       />
-                      <button onClick={() => updatePlayerStat(selectedPlayer, 'energy', selectedPlayerData.stats.energy + 10)}>+10</button>
-                    </div>
-                  </div>
-                  <div className="stat-control">
-                    <label>⚔️ Attack</label>
-                    <div className="stat-buttons">
-                      <button onClick={() => updatePlayerStat(selectedPlayer, 'attack', selectedPlayerData.stats.attack - 5)}>-5</button>
-                      <input
-                        type="number"
-                        value={selectedPlayerData.stats.attack}
-                        onChange={(e) => updatePlayerStat(selectedPlayer, 'attack', parseInt(e.target.value) || 0)}
-                      />
-                      <button onClick={() => updatePlayerStat(selectedPlayer, 'attack', selectedPlayerData.stats.attack + 5)}>+5</button>
-                    </div>
-                  </div>
-                  <div className="stat-control">
-                    <label>🛡️ Defense</label>
-                    <div className="stat-buttons">
-                      <button onClick={() => updatePlayerStat(selectedPlayer, 'defense', selectedPlayerData.stats.defense - 5)}>-5</button>
-                      <input
-                        type="number"
-                        value={selectedPlayerData.stats.defense}
-                        onChange={(e) => updatePlayerStat(selectedPlayer, 'defense', parseInt(e.target.value) || 0)}
-                      />
-                      <button onClick={() => updatePlayerStat(selectedPlayer, 'defense', selectedPlayerData.stats.defense + 5)}>+5</button>
+                      <button onClick={() => updatePlayerStat(selectedPlayer, 'gold', selectedPlayerData.stats.gold + 10)}>+10</button>
                     </div>
                   </div>
                 </div>

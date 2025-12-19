@@ -122,35 +122,19 @@ export default function DisplayView({ onBack }) {
 
               <div className="player-stat-grid">
                 <div className="stat-item">
-                  <span className="stat-item-icon">❤️</span>
-                  <div className="stat-item-bar">
-                    <div
-                      className="stat-item-fill health"
-                      style={{ width: `${Math.min(100, player.stats?.health || 0)}%` }}
-                    />
-                  </div>
-                  <span className="stat-item-value">{player.stats?.health || 0}</span>
-                </div>
-
-                <div className="stat-item">
                   <span className="stat-item-icon">⚡</span>
                   <div className="stat-item-bar">
                     <div
-                      className="stat-item-fill energy"
-                      style={{ width: `${Math.min(100, player.stats?.energy || 0)}%` }}
+                      className="stat-item-fill power"
+                      style={{ width: `${Math.min(100, player.stats?.power || 0)}%` }}
                     />
                   </div>
-                  <span className="stat-item-value">{player.stats?.energy || 0}</span>
+                  <span className="stat-item-value">{player.stats?.power || 0}</span>
                 </div>
 
                 <div className="stat-item">
-                  <span className="stat-item-icon">⚔️</span>
-                  <span className="stat-item-value">{player.stats?.attack || 0}</span>
-                </div>
-
-                <div className="stat-item">
-                  <span className="stat-item-icon">🛡️</span>
-                  <span className="stat-item-value">{player.stats?.defense || 0}</span>
+                  <span className="stat-item-icon">💰</span>
+                  <span className="stat-item-value">{player.stats?.gold || 0}</span>
                 </div>
               </div>
 

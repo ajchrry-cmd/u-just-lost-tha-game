@@ -329,12 +329,8 @@
   border-radius: 6px;
 }
 
-.stat-item-fill.health {
-  background: linear-gradient(90deg, #FF6B6B, #FF5252);
-}
-
-.stat-item-fill.energy {
-  background: linear-gradient(90deg, #FFA94D, #FFD93D);
+.stat-item-fill.power {
+  background: linear-gradient(90deg, #6C63FF, #45B7D1);
 }
 
 .stat-item-value {
