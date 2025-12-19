@@ -1,9 +1,11 @@
 .display-view {
-  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
   background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 100%);
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
 }
 
 /* Force landscape orientation message */
@@ -62,16 +64,16 @@
 
 .back-button-display {
   position: fixed;
-  top: 1rem;
-  left: 1rem;
-  padding: 0.5rem 1rem;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.4rem 0.8rem;
   background: rgba(15, 52, 96, 0.8);
   border: 2px solid var(--primary-color);
   color: var(--text-primary);
   border-radius: var(--border-radius);
   cursor: pointer;
-  font-size: 0.9rem;
-  opacity: 0.3;
+  font-size: 0.8rem;
+  opacity: 0.2;
   transition: all 0.3s ease;
   z-index: 1000;
 }
@@ -83,41 +85,33 @@
 
 .display-header {
   text-align: center;
-  padding: 1rem 2rem;
+  padding: 0.5rem 1rem;
+  background: rgba(15, 52, 96, 0.5);
 }
 
 .display-header h1 {
-  font-size: 3rem;
+  font-size: 2rem;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  animation: pulse 3s ease-in-out infinite;
+  margin: 0;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
+/* Event Display */
 .event-display {
   background: linear-gradient(135deg, var(--secondary-color), #FF5252);
-  padding: 2rem;
-  margin: 0 2rem 1rem 2rem;
+  padding: 0.75rem 1.5rem;
+  margin: 0.5rem 1rem;
   border-radius: var(--border-radius);
-  box-shadow: 0 8px 16px rgba(255, 107, 107, 0.4);
+  box-shadow: 0 4px 8px rgba(255, 107, 107, 0.4);
   animation: slideDown 0.5s ease-out;
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;
@@ -130,34 +124,44 @@
 }
 
 .event-content h2 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  margin: 0 0 0.25rem 0;
   color: white;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .event-content p {
-  font-size: 1.3rem;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+/* Main Content Area - Landscape Layout */
+.display-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding: 0.5rem 1rem 1rem 1rem;
+  overflow: hidden;
+  min-height: 0;
 }
 
 /* Map Section */
 .map-section {
-  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
-  min-height: 0;
+  overflow: hidden;
 }
 
 .game-map {
   display: grid;
-  gap: 0.5rem;
-  max-width: 800px;
-  max-height: 60vh;
+  gap: 0.3rem;
+  max-width: 100%;
+  max-height: 100%;
   aspect-ratio: 1;
-  padding: 1rem;
+  padding: 0.75rem;
   background: var(--bg-light);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
@@ -166,58 +170,45 @@
 .map-tile {
   background: var(--bg-medium);
   border: 2px solid var(--bg-dark);
-  border-radius: 8px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  min-height: 80px;
+  min-height: 50px;
   transition: all 0.3s ease;
-}
-
-.map-tile:hover {
-  background: var(--bg-light);
-  border-color: var(--primary-color);
-  transform: scale(1.05);
 }
 
 .tile-number {
   position: absolute;
-  top: 0.25rem;
-  left: 0.25rem;
-  font-size: 0.8rem;
+  top: 0.15rem;
+  left: 0.15rem;
+  font-size: 0.65rem;
   color: var(--text-secondary);
   opacity: 0.6;
-}
-
-.tile-label {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  text-align: center;
-  padding: 0.25rem;
 }
 
 .tile-players {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
+  gap: 0.2rem;
   justify-content: center;
-  padding: 0.25rem;
+  padding: 0.2rem;
 }
 
 .player-marker {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: white;
-  border: 3px solid white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   animation: popIn 0.3s ease-out;
 }
 
@@ -230,42 +221,38 @@
   }
 }
 
-/* Players Bar */
-.players-bar {
-  background: rgba(15, 52, 96, 0.95);
-  padding: 1rem;
+/* Players Stats Section */
+.players-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  border-top: 3px solid var(--primary-color);
-  max-height: 35vh;
-  overflow-y: auto;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  overflow: hidden;
 }
 
-.player-panel {
+.player-stat-card {
   background: var(--bg-light);
   border-left: 4px solid;
   border-radius: var(--border-radius);
-  padding: 0.75rem;
+  padding: 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  position: relative;
+  gap: 0.3rem;
   box-shadow: var(--shadow);
   transition: all 0.3s ease;
+  overflow: hidden;
 }
 
-.player-panel:hover {
+.player-stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
-.player-panel.eliminated {
-  opacity: 0.5;
-  filter: grayscale(50%);
+.player-stat-card.eliminated {
+  opacity: 0.4;
+  filter: grayscale(80%);
 }
 
-.player-panel.danger {
+.player-stat-card.danger {
   animation: pulse-danger 1.5s ease-in-out infinite;
 }
 
@@ -274,128 +261,141 @@
     box-shadow: 0 0 0 0 rgba(255, 169, 77, 0.7);
   }
   50% {
-    box-shadow: 0 0 0 10px rgba(255, 169, 77, 0);
+    box-shadow: 0 0 0 6px rgba(255, 169, 77, 0);
   }
 }
 
-.player-header {
+/* Player Header Row */
+.player-stat-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
 }
 
-.player-header h3 {
-  font-size: 1.4rem;
+.player-stat-name {
+  font-size: 1.1rem;
   font-weight: bold;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.player-score-badge {
+.player-stat-score {
   background: var(--primary-color);
   color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
+  padding: 0.15rem 0.5rem;
+  border-radius: 12px;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
 }
 
-/* Stats Bar */
-.player-stats-bar {
+/* Stats Grid - Compact 2x2 */
+.player-stat-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem;
 }
 
-.stat {
+.stat-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.3rem;
+  background: var(--bg-medium);
+  padding: 0.3rem 0.4rem;
+  border-radius: 6px;
 }
 
-.stat-icon {
-  font-size: 1.2rem;
+.stat-item-icon {
+  font-size: 1rem;
+  min-width: 18px;
+  text-align: center;
 }
 
-.stat-bar {
+.stat-item-bar {
   flex: 1;
-  height: 20px;
+  height: 12px;
   background: var(--bg-dark);
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
   position: relative;
 }
 
-.stat-fill {
+.stat-item-fill {
   height: 100%;
   transition: width 0.5s ease;
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
-.stat-fill.health {
+.stat-item-fill.health {
   background: linear-gradient(90deg, #FF6B6B, #FF5252);
 }
 
-.stat-fill.energy {
+.stat-item-fill.energy {
   background: linear-gradient(90deg, #FFA94D, #FFD93D);
 }
 
-.stat-value {
+.stat-item-value {
   color: var(--text-primary);
   font-weight: bold;
-  font-size: 1rem;
-  min-width: 40px;
+  font-size: 0.85rem;
+  min-width: 30px;
   text-align: right;
 }
 
-/* Inventory Bar */
-.player-inventory-bar {
+/* Inventory Row - Compact */
+.player-stat-inventory {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding-top: 0.5rem;
+  gap: 0.3rem;
+  padding-top: 0.3rem;
   border-top: 1px solid var(--bg-dark);
 }
 
-.inventory-label {
-  font-size: 1.2rem;
+.inventory-icon {
+  font-size: 1rem;
 }
 
-.inventory-items {
+.inventory-slots {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.25rem;
   flex: 1;
-  overflow-x: auto;
+  overflow: hidden;
 }
 
-.inventory-item {
+.inventory-slot {
   background: var(--bg-medium);
-  border: 2px solid var(--warning-color);
-  border-radius: 6px;
-  padding: 0.4rem 0.6rem;
-  font-size: 0.9rem;
+  border: 1.5px solid var(--warning-color);
+  border-radius: 4px;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
   font-weight: bold;
   color: var(--text-primary);
   white-space: nowrap;
-  min-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 40px;
+  max-width: 60px;
   text-align: center;
 }
 
-.inventory-item.empty {
+.inventory-slot.empty {
   border-color: var(--bg-dark);
   color: var(--text-secondary);
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
-.player-status-overlay {
+.player-stat-status {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0.3rem;
+  right: 0.3rem;
   background: var(--danger-color);
   color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 15px;
-  font-size: 0.8rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
   font-weight: bold;
   text-transform: uppercase;
 }
@@ -417,62 +417,53 @@
   opacity: 0.7;
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .game-map {
-    max-width: 600px;
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+  .display-content {
+    grid-template-columns: 1.2fr 1fr;
   }
 
-  .players-bar {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  .players-stats {
+    grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .display-header h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
 
   .event-content h2 {
-    font-size: 1.8rem;
+    font-size: 1.2rem;
   }
 
-  .map-section {
-    padding: 1rem;
-  }
-
-  .game-map {
-    max-width: 100%;
-    padding: 0.5rem;
-    gap: 0.25rem;
-  }
-
-  .map-tile {
-    min-height: 60px;
-  }
-
-  .player-marker {
-    width: 30px;
-    height: 30px;
+  .player-stat-name {
     font-size: 1rem;
   }
 
-  .players-bar {
-    grid-template-columns: 1fr;
-    max-height: 40vh;
+  .player-marker {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
   }
 
-  .player-stats-bar {
-    grid-template-columns: 1fr;
+  .map-tile {
+    min-height: 40px;
   }
 }
 
-@media (min-width: 1600px) {
-  .game-map {
-    max-width: 1000px;
+@media (min-width: 1920px) {
+  .display-header h1 {
+    font-size: 2.5rem;
   }
 
-  .display-header h1 {
-    font-size: 4rem;
+  .player-stat-name {
+    font-size: 1.3rem;
+  }
+
+  .player-marker {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
   }
 }
