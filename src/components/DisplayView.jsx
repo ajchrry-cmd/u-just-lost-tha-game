@@ -25,6 +25,46 @@ export default function DisplayView({ onBack }) {
   const [wheelRotation, setWheelRotation] = useState(0)
   const [wheelResult, setWheelResult] = useState(null)
 
+  const currentScene = gameState.currentScene?.type || 'game'
+  const sceneData = gameState.currentScene?.data || {}
+
+  const spinWheel = useCallback(() => {
+    if (isSpinning || !sceneData.outcomes || sceneData.outcomes.length < 2) return
+
+    setIsSpinning(true)
+    setWheelResult(null)
+
+    // Calculate which outcome to land on based on percentages
+    const outcomes = sceneData.outcomes
+    const totalPercentage = outcomes.reduce((sum, o) => sum + o.percentage, 0)
+    const random = Math.random() * totalPercentage
+
+    let cumulativePercentage = 0
+    let selectedOutcome = outcomes[0]
+
+    for (const outcome of outcomes) {
+      cumulativePercentage += outcome.percentage
+      if (random <= cumulativePercentage) {
+        selectedOutcome = outcome
+        break
+      }
+    }
+
+    // Calculate rotation to land on the selected outcome
+    const outcomeIndex = outcomes.indexOf(selectedOutcome)
+    const segmentAngle = 360 / outcomes.length
+    const targetAngle = 360 - (outcomeIndex * segmentAngle + segmentAngle / 2)
+    const spins = 5 // Number of full rotations
+    const finalRotation = wheelRotation + (spins * 360) + targetAngle + (Math.random() * 20 - 10)
+
+    setWheelRotation(finalRotation)
+
+    setTimeout(() => {
+      setIsSpinning(false)
+      setWheelResult(selectedOutcome)
+    }, 4000)
+  }, [isSpinning, sceneData.outcomes, wheelRotation])
+
   useEffect(() => {
     const handleStorageChange = () => {
       const saved = localStorage.getItem('gameState')
@@ -53,9 +93,6 @@ export default function DisplayView({ onBack }) {
   const getPlayersAtPosition = (position) => {
     return gameState.players.filter(p => p.position === position)
   }
-
-  const currentScene = gameState.currentScene?.type || 'game'
-  const sceneData = gameState.currentScene?.data || {}
 
   const renderGameView = () => (
     <div className="display-content">
@@ -198,43 +235,6 @@ export default function DisplayView({ onBack }) {
       )}
     </div>
   )
-
-  const spinWheel = useCallback(() => {
-    if (isSpinning || !sceneData.outcomes || sceneData.outcomes.length < 2) return
-
-    setIsSpinning(true)
-    setWheelResult(null)
-
-    // Calculate which outcome to land on based on percentages
-    const outcomes = sceneData.outcomes
-    const totalPercentage = outcomes.reduce((sum, o) => sum + o.percentage, 0)
-    const random = Math.random() * totalPercentage
-
-    let cumulativePercentage = 0
-    let selectedOutcome = outcomes[0]
-
-    for (const outcome of outcomes) {
-      cumulativePercentage += outcome.percentage
-      if (random <= cumulativePercentage) {
-        selectedOutcome = outcome
-        break
-      }
-    }
-
-    // Calculate rotation to land on the selected outcome
-    const outcomeIndex = outcomes.indexOf(selectedOutcome)
-    const segmentAngle = 360 / outcomes.length
-    const targetAngle = 360 - (outcomeIndex * segmentAngle + segmentAngle / 2)
-    const spins = 5 // Number of full rotations
-    const finalRotation = wheelRotation + (spins * 360) + targetAngle + (Math.random() * 20 - 10)
-
-    setWheelRotation(finalRotation)
-
-    setTimeout(() => {
-      setIsSpinning(false)
-      setWheelResult(selectedOutcome)
-    }, 4000)
-  }, [isSpinning, sceneData.outcomes, wheelRotation])
 
   const renderWheelView = () => {
     const outcomes = sceneData.outcomes || []
