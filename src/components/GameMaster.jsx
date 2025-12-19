@@ -442,6 +442,27 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     })
   }
 
+  const setBackgroundImage = (imageUrl) => {
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        backgroundImage: imageUrl
+      }
+    })
+  }
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setBackgroundImage(e.target.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const selectedPlayerData = gameState.players.find(p => p.id === selectedPlayer)
 
   return (
@@ -738,6 +759,37 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
 
           {gameState.mapMode === 'custom' && (
             <>
+              <div className="background-image-controls">
+                <h3>🖼️ Map Background</h3>
+                <div className="background-options">
+                  <div className="input-group">
+                    <label>Image URL:</label>
+                    <input
+                      type="text"
+                      value={gameState.customMap?.backgroundImage || ''}
+                      onChange={(e) => setBackgroundImage(e.target.value)}
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label>Or Upload Image:</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                    />
+                  </div>
+                  {gameState.customMap?.backgroundImage && (
+                    <button
+                      className="danger-button small"
+                      onClick={() => setBackgroundImage('')}
+                    >
+                      Remove Background
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <p className="map-instructions">
                 Click anywhere on the canvas to add a tile. Click a tile to select it for editing or moving.
               </p>
@@ -745,6 +797,13 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               <div
                 className="map-canvas"
                 onClick={addTile}
+                style={{
+                  backgroundImage: gameState.customMap?.backgroundImage
+                    ? `url(${gameState.customMap.backgroundImage})`
+                    : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
               >
                 {(gameState.customMap?.tiles || []).map(tile => (
                   <div

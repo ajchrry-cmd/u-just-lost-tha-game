@@ -113,7 +113,13 @@ export default function DisplayView({ onBack }) {
       <div className="display-content">
         <section className="map-section">
           {isCustomMode ? (
-            <div className="custom-map-display">
+            <div className="custom-map-display" style={{
+              backgroundImage: gameState.customMap?.backgroundImage
+                ? `url(${gameState.customMap.backgroundImage})`
+                : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}>
               {customTiles.map(tile => {
                 const playersHere = getPlayersAtTile(tile.id)
                 return (

@@ -30,7 +30,8 @@ function App() {
         }))
       },
       customMap: {
-        tiles: [] // Each tile has: { id, x, y, type, label, connections }
+        tiles: [], // Each tile has: { id, x, y, type, label, connections }
+        backgroundImage: '' // URL or data URI for background image
       }
     }
   })

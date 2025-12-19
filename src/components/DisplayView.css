@@ -229,6 +229,7 @@
   background: var(--bg-light);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
+  background-repeat: no-repeat;
 }
 
 .custom-map-tile {
