@@ -12,6 +12,11 @@ function App() {
       currentEvent: null,
       gameTitle: 'Epic Game Night',
       theme: 'default',
+      currentScene: {
+        type: 'game', // 'game', 'shop', 'image', 'text'
+        data: {}
+      },
+      shopItems: [],
       mapGrid: {
         rows: 5,
         cols: 5,

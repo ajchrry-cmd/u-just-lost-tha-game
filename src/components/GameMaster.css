@@ -482,6 +482,133 @@
   transform: translateY(-3px);
 }
 
+/* Scene Management */
+.scene-current {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: var(--bg-medium);
+  border-radius: var(--border-radius);
+  text-align: center;
+}
+
+.scene-current strong {
+  color: var(--primary-color);
+  text-transform: capitalize;
+}
+
+.scene-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.scene-button {
+  padding: 1rem;
+  background: var(--bg-medium);
+  color: white;
+  border: 2px solid var(--bg-dark);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.scene-button:hover {
+  background: var(--bg-dark);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.scene-button.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 20px rgba(108, 99, 255, 0.5);
+}
+
+.scene-editor {
+  background: var(--bg-medium);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+}
+
+.scene-editor h3 {
+  color: var(--secondary-color);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.add-shop-item {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.add-shop-item input[type="text"] {
+  flex: 1;
+}
+
+.add-shop-item button {
+  padding: 0.75rem 1.5rem;
+  background: var(--success-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: bold;
+}
+
+.add-shop-item button:hover {
+  background: #40B353;
+}
+
+.shop-items-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.shop-item-chip {
+  background: var(--bg-dark);
+  border: 2px solid var(--warning-color);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shop-item-chip span {
+  color: var(--text-primary);
+  font-weight: bold;
+}
+
+.shop-item-chip button {
+  background: none;
+  border: none;
+  color: var(--danger-color);
+  font-size: 1.2rem;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.shop-item-chip button:hover {
+  color: #FF5252;
+}
+
+.empty-hint {
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 0.5rem;
+}
+
 @media (max-width: 768px) {
   .gm-content {
     padding: 1rem;

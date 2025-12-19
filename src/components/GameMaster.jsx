@@ -9,6 +9,14 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   const [selectedPlayer, setSelectedPlayer] = useState(null)
   const [newItemName, setNewItemName] = useState('')
 
+  // Scene management state
+  const [newShopItemName, setNewShopItemName] = useState('')
+  const [newShopItemPrice, setNewShopItemPrice] = useState(10)
+  const [imageUrl, setImageUrl] = useState('')
+  const [imageTitle, setImageTitle] = useState('')
+  const [customText, setCustomText] = useState('')
+  const [customTextTitle, setCustomTextTitle] = useState('')
+
   const addPlayer = () => {
     if (newPlayerName.trim()) {
       setGameState({
@@ -190,6 +198,55 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     return colors[Math.floor(Math.random() * colors.length)]
   }
 
+  // Scene management functions
+  const switchScene = (type, data = {}) => {
+    setGameState({
+      ...gameState,
+      currentScene: { type, data }
+    })
+  }
+
+  const addShopItem = () => {
+    if (newShopItemName.trim()) {
+      setGameState({
+        ...gameState,
+        shopItems: [
+          ...gameState.shopItems,
+          {
+            id: Date.now(),
+            name: newShopItemName,
+            price: newShopItemPrice
+          }
+        ]
+      })
+      setNewShopItemName('')
+      setNewShopItemPrice(10)
+    }
+  }
+
+  const removeShopItem = (itemId) => {
+    setGameState({
+      ...gameState,
+      shopItems: gameState.shopItems.filter(item => item.id !== itemId)
+    })
+  }
+
+  const showShop = () => {
+    switchScene('shop', { items: gameState.shopItems })
+  }
+
+  const showImage = () => {
+    if (imageUrl.trim()) {
+      switchScene('image', { url: imageUrl, title: imageTitle })
+    }
+  }
+
+  const showCustomText = () => {
+    if (customText.trim()) {
+      switchScene('text', { text: customText, title: customTextTitle })
+    }
+  }
+
   const selectedPlayerData = gameState.players.find(p => p.id === selectedPlayer)
 
   return (
@@ -210,6 +267,117 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               onChange={(e) => updateGameTitle(e.target.value)}
               placeholder="Enter game title"
             />
+          </div>
+        </section>
+
+        <section className="section scene-management">
+          <h2>🎬 TV Display Scene Control</h2>
+          <p className="scene-current">Current Scene: <strong>{gameState.currentScene?.type || 'game'}</strong></p>
+
+          <div className="scene-buttons">
+            <button
+              className={`scene-button ${gameState.currentScene?.type === 'game' ? 'active' : ''}`}
+              onClick={() => switchScene('game')}
+            >
+              🎮 Game View
+            </button>
+            <button
+              className={`scene-button ${gameState.currentScene?.type === 'shop' ? 'active' : ''}`}
+              onClick={showShop}
+            >
+              🛒 Shop
+            </button>
+            <button
+              className={`scene-button ${gameState.currentScene?.type === 'image' ? 'active' : ''}`}
+              onClick={showImage}
+            >
+              🖼️ Image
+            </button>
+            <button
+              className={`scene-button ${gameState.currentScene?.type === 'text' ? 'active' : ''}`}
+              onClick={showCustomText}
+            >
+              📄 Custom Text
+            </button>
+          </div>
+
+          {/* Shop Management */}
+          <div className="scene-editor shop-editor">
+            <h3>🛒 Shop Items</h3>
+            <div className="add-shop-item">
+              <input
+                type="text"
+                value={newShopItemName}
+                onChange={(e) => setNewShopItemName(e.target.value)}
+                placeholder="Item name"
+                onKeyPress={(e) => e.key === 'Enter' && addShopItem()}
+              />
+              <input
+                type="number"
+                value={newShopItemPrice}
+                onChange={(e) => setNewShopItemPrice(parseInt(e.target.value) || 0)}
+                placeholder="Price"
+                style={{ width: '100px' }}
+              />
+              <button onClick={addShopItem}>Add Item</button>
+            </div>
+            <div className="shop-items-list">
+              {gameState.shopItems?.map(item => (
+                <div key={item.id} className="shop-item-chip">
+                  <span>{item.name} - 💰{item.price}</span>
+                  <button onClick={() => removeShopItem(item.id)}>✕</button>
+                </div>
+              ))}
+              {(!gameState.shopItems || gameState.shopItems.length === 0) && (
+                <p className="empty-hint">No shop items yet</p>
+              )}
+            </div>
+          </div>
+
+          {/* Image Scene */}
+          <div className="scene-editor image-editor">
+            <h3>🖼️ Image Scene</h3>
+            <div className="input-group">
+              <label>Image Title (optional):</label>
+              <input
+                type="text"
+                value={imageTitle}
+                onChange={(e) => setImageTitle(e.target.value)}
+                placeholder="Image title"
+              />
+            </div>
+            <div className="input-group">
+              <label>Image URL:</label>
+              <input
+                type="text"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+          </div>
+
+          {/* Custom Text Scene */}
+          <div className="scene-editor text-editor">
+            <h3>📄 Custom Text Scene</h3>
+            <div className="input-group">
+              <label>Title (optional):</label>
+              <input
+                type="text"
+                value={customTextTitle}
+                onChange={(e) => setCustomTextTitle(e.target.value)}
+                placeholder="Scene title"
+              />
+            </div>
+            <div className="input-group">
+              <label>Text Content:</label>
+              <textarea
+                value={customText}
+                onChange={(e) => setCustomText(e.target.value)}
+                placeholder="Enter text to display..."
+                rows="4"
+              />
+            </div>
           </div>
         </section>
 
