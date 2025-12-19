@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import './DisplayView.css'
 
 export default function DisplayView({ onBack }) {
@@ -24,6 +24,7 @@ export default function DisplayView({ onBack }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [wheelRotation, setWheelRotation] = useState(0)
   const [wheelResult, setWheelResult] = useState(null)
+  const lastSpinTrigger = useRef(null)
 
   const currentScene = gameState.currentScene?.type || 'game'
   const sceneData = gameState.currentScene?.data || {}
@@ -85,7 +86,13 @@ export default function DisplayView({ onBack }) {
 
   // Watch for wheel spin trigger from Game Master
   useEffect(() => {
-    if (gameState.wheelSpinTrigger && gameState.currentScene?.type === 'wheel' && !isSpinning) {
+    if (
+      gameState.wheelSpinTrigger &&
+      gameState.currentScene?.type === 'wheel' &&
+      !isSpinning &&
+      gameState.wheelSpinTrigger !== lastSpinTrigger.current
+    ) {
+      lastSpinTrigger.current = gameState.wheelSpinTrigger
       spinWheel()
     }
   }, [gameState.wheelSpinTrigger, gameState.currentScene?.type, isSpinning, spinWheel])
