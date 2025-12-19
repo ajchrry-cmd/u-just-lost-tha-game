@@ -24,8 +24,17 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   const [newOutcomePercentage] = useState(25)
 
   // Map editor state
-  const [selectedTile, setSelectedTile] = useState(null)
+  const [selectedTiles, setSelectedTiles] = useState([])
   const [newTileLabel, setNewTileLabel] = useState('')
+  const [copiedTiles, setCopiedTiles] = useState([])
+  const [canvasZoom, setCanvasZoom] = useState(1)
+  const [canvasPan, setCanvasPan] = useState({ x: 0, y: 0 })
+  const [isPanning, setIsPanning] = useState(false)
+  const [dragStart, setDragStart] = useState(null)
+  const [showCoordinates, setShowCoordinates] = useState(false)
+  const [dragCoords, setDragCoords] = useState({ x: 0, y: 0 })
+  const [contextMenu, setContextMenu] = useState(null)
+  const [tileFilter, setTileFilter] = useState('')
 
   const addPlayer = () => {
     if (newPlayerName.trim()) {
@@ -356,6 +365,9 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   }
 
   const addTile = (event) => {
+    // Don't add tile if clicking on an existing tile
+    if (event.target.classList.contains('custom-tile')) return
+
     const rect = event.currentTarget.getBoundingClientRect()
     const x = ((event.clientX - rect.left) / rect.width) * 100
     const y = ((event.clientY - rect.top) / rect.height) * 100
@@ -366,8 +378,12 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
       y: Math.round(y),
       label: `Tile ${(gameState.customMap?.tiles.length || 0) + 1}`,
       type: 'normal',
-      size: 80, // Default size in pixels
-      shape: 'circle' // Default shape: circle, square, diamond, hexagon
+      size: 80,
+      shape: 'circle',
+      color: null, // null means use default gradient
+      rotation: 0,
+      connections: [],
+      locked: false
     }
 
     setGameState({
@@ -380,14 +396,19 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   }
 
   const deleteTile = (tileId) => {
+    const tilesToDelete = tileId ? [tileId] : selectedTiles
     setGameState({
       ...gameState,
       customMap: {
         ...gameState.customMap,
-        tiles: gameState.customMap.tiles.filter(t => t.id !== tileId)
+        tiles: gameState.customMap.tiles.filter(t => !tilesToDelete.includes(t.id))
       }
     })
-    if (selectedTile === tileId) setSelectedTile(null)
+    setSelectedTiles([])
+  }
+
+  const deleteSelectedTiles = () => {
+    deleteTile(null)
   }
 
   const updateTileLabel = (tileId, newLabel) => {
@@ -461,6 +482,382 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
       }
       reader.readAsDataURL(file)
     }
+  }
+
+  // Multi-select functions
+  const toggleTileSelection = (tileId, event) => {
+    if (event) event.stopPropagation()
+
+    if (event?.shiftKey) {
+      // Add to selection with Shift
+      setSelectedTiles(prev =>
+        prev.includes(tileId) ? prev.filter(id => id !== tileId) : [...prev, tileId]
+      )
+    } else {
+      // Single selection
+      setSelectedTiles([tileId])
+    }
+  }
+
+  const selectAllTiles = () => {
+    const allTileIds = (gameState.customMap?.tiles || []).map(t => t.id)
+    setSelectedTiles(allTileIds)
+  }
+
+  const deselectAllTiles = () => {
+    setSelectedTiles([])
+  }
+
+  // Copy/Paste/Duplicate functions
+  const copySelectedTiles = () => {
+    const tiles = gameState.customMap?.tiles || []
+    const tilesToCopy = tiles.filter(t => selectedTiles.includes(t.id))
+    setCopiedTiles(tilesToCopy)
+  }
+
+  const duplicateSelectedTiles = () => {
+    copySelectedTiles()
+    setTimeout(() => pasteCopiedTiles(), 10)
+  }
+
+  const pasteCopiedTiles = () => {
+    if (copiedTiles.length === 0) return
+
+    const newTiles = copiedTiles.map(tile => ({
+      ...tile,
+      id: Date.now() + Math.random(),
+      x: tile.x + 5,
+      y: tile.y + 5,
+      label: tile.label + ' (copy)'
+    }))
+
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: [...(gameState.customMap?.tiles || []), ...newTiles]
+      }
+    })
+
+    setSelectedTiles(newTiles.map(t => t.id))
+  }
+
+  // Lock/Unlock functions
+  const toggleTileLock = (tileId) => {
+    const tilesToToggle = tileId ? [tileId] : selectedTiles
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: gameState.customMap.tiles.map(t =>
+          tilesToToggle.includes(t.id) ? { ...t, locked: !t.locked } : t
+        )
+      }
+    })
+  }
+
+  // Color and Rotation functions
+  const updateTileColor = (tileId, color) => {
+    const tilesToUpdate = tileId ? [tileId] : selectedTiles
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: gameState.customMap.tiles.map(t =>
+          tilesToUpdate.includes(t.id) ? { ...t, color } : t
+        )
+      }
+    })
+  }
+
+  const updateTileRotation = (tileId, rotation) => {
+    const tilesToUpdate = tileId ? [tileId] : selectedTiles
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: gameState.customMap.tiles.map(t =>
+          tilesToUpdate.includes(t.id) ? { ...t, rotation } : t
+        )
+      }
+    })
+  }
+
+  // Connection functions
+  const toggleConnection = (fromTileId, toTileId) => {
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: gameState.customMap.tiles.map(t => {
+          if (t.id === fromTileId) {
+            const connections = t.connections || []
+            const hasConnection = connections.includes(toTileId)
+            return {
+              ...t,
+              connections: hasConnection
+                ? connections.filter(id => id !== toTileId)
+                : [...connections, toTileId]
+            }
+          }
+          return t
+        })
+      }
+    })
+  }
+
+  // Zoom and Pan functions
+  const zoomIn = () => setCanvasZoom(prev => Math.min(3, prev + 0.25))
+  const zoomOut = () => setCanvasZoom(prev => Math.max(0.5, prev - 0.25))
+  const resetZoom = () => {
+    setCanvasZoom(1)
+    setCanvasPan({ x: 0, y: 0 })
+  }
+
+  // Alignment functions
+  const alignTiles = (direction) => {
+    if (selectedTiles.length < 2) return
+
+    const tiles = gameState.customMap?.tiles || []
+    const selectedTileObjects = tiles.filter(t => selectedTiles.includes(t.id))
+
+    let updatedTiles = [...tiles]
+
+    if (direction === 'left') {
+      const minX = Math.min(...selectedTileObjects.map(t => t.x))
+      updatedTiles = updatedTiles.map(t =>
+        selectedTiles.includes(t.id) ? { ...t, x: minX } : t
+      )
+    } else if (direction === 'right') {
+      const maxX = Math.max(...selectedTileObjects.map(t => t.x))
+      updatedTiles = updatedTiles.map(t =>
+        selectedTiles.includes(t.id) ? { ...t, x: maxX } : t
+      )
+    } else if (direction === 'top') {
+      const minY = Math.min(...selectedTileObjects.map(t => t.y))
+      updatedTiles = updatedTiles.map(t =>
+        selectedTiles.includes(t.id) ? { ...t, y: minY } : t
+      )
+    } else if (direction === 'bottom') {
+      const maxY = Math.max(...selectedTileObjects.map(t => t.y))
+      updatedTiles = updatedTiles.map(t =>
+        selectedTiles.includes(t.id) ? { ...t, y: maxY } : t
+      )
+    } else if (direction === 'center-h') {
+      const avgX = selectedTileObjects.reduce((sum, t) => sum + t.x, 0) / selectedTileObjects.length
+      updatedTiles = updatedTiles.map(t =>
+        selectedTiles.includes(t.id) ? { ...t, x: Math.round(avgX) } : t
+      )
+    } else if (direction === 'center-v') {
+      const avgY = selectedTileObjects.reduce((sum, t) => sum + t.y, 0) / selectedTileObjects.length
+      updatedTiles = updatedTiles.map(t =>
+        selectedTiles.includes(t.id) ? { ...t, y: Math.round(avgY) } : t
+      )
+    }
+
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: updatedTiles
+      }
+    })
+  }
+
+  const distributeTiles = (direction) => {
+    if (selectedTiles.length < 3) return
+
+    const tiles = gameState.customMap?.tiles || []
+    const selectedTileObjects = tiles.filter(t => selectedTiles.includes(t.id))
+
+    let updatedTiles = [...tiles]
+
+    if (direction === 'horizontal') {
+      const sorted = [...selectedTileObjects].sort((a, b) => a.x - b.x)
+      const minX = sorted[0].x
+      const maxX = sorted[sorted.length - 1].x
+      const spacing = (maxX - minX) / (sorted.length - 1)
+
+      sorted.forEach((tile, index) => {
+        const newX = minX + (spacing * index)
+        updatedTiles = updatedTiles.map(t =>
+          t.id === tile.id ? { ...t, x: Math.round(newX) } : t
+        )
+      })
+    } else if (direction === 'vertical') {
+      const sorted = [...selectedTileObjects].sort((a, b) => a.y - b.y)
+      const minY = sorted[0].y
+      const maxY = sorted[sorted.length - 1].y
+      const spacing = (maxY - minY) / (sorted.length - 1)
+
+      sorted.forEach((tile, index) => {
+        const newY = minY + (spacing * index)
+        updatedTiles = updatedTiles.map(t =>
+          t.id === tile.id ? { ...t, y: Math.round(newY) } : t
+        )
+      })
+    }
+
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: updatedTiles
+      }
+    })
+  }
+
+  // Auto-numbering function
+  const autoNumberTiles = () => {
+    const tiles = gameState.customMap?.tiles || []
+    const updatedTiles = tiles.map((tile, index) => ({
+      ...tile,
+      label: `Tile ${index + 1}`
+    }))
+
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: updatedTiles
+      }
+    })
+  }
+
+  // Export/Import functions
+  const exportMap = () => {
+    const mapData = {
+      tiles: gameState.customMap?.tiles || [],
+      backgroundImage: gameState.customMap?.backgroundImage || ''
+    }
+
+    const dataStr = JSON.stringify(mapData, null, 2)
+    const dataBlob = new Blob([dataStr], { type: 'application/json' })
+    const url = URL.createObjectURL(dataBlob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `map-${Date.now()}.json`
+    link.click()
+
+    URL.revokeObjectURL(url)
+  }
+
+  const importMap = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        try {
+          const mapData = JSON.parse(e.target.result)
+          setGameState({
+            ...gameState,
+            customMap: {
+              tiles: mapData.tiles || [],
+              backgroundImage: mapData.backgroundImage || ''
+            }
+          })
+        } catch (error) {
+          alert('Error importing map: Invalid JSON file')
+        }
+      }
+      reader.readAsText(file)
+    }
+  }
+
+  // Template functions
+  const saveAsTemplate = () => {
+    const templates = JSON.parse(localStorage.getItem('mapTemplates') || '[]')
+    const templateName = prompt('Enter template name:')
+    if (!templateName) return
+
+    const newTemplate = {
+      id: Date.now(),
+      name: templateName,
+      tiles: gameState.customMap?.tiles || [],
+      backgroundImage: gameState.customMap?.backgroundImage || ''
+    }
+
+    templates.push(newTemplate)
+    localStorage.setItem('mapTemplates', JSON.stringify(templates))
+    alert('Template saved!')
+  }
+
+  const loadTemplate = (templateId) => {
+    const templates = JSON.parse(localStorage.getItem('mapTemplates') || '[]')
+    const template = templates.find(t => t.id === templateId)
+
+    if (template) {
+      setGameState({
+        ...gameState,
+        customMap: {
+          tiles: template.tiles,
+          backgroundImage: template.backgroundImage
+        }
+      })
+    }
+  }
+
+  const deleteTemplate = (templateId) => {
+    const templates = JSON.parse(localStorage.getItem('mapTemplates') || '[]')
+    const updatedTemplates = templates.filter(t => t.id !== templateId)
+    localStorage.setItem('mapTemplates', JSON.stringify(updatedTemplates))
+  }
+
+  const clearMap = () => {
+    if (confirm('Are you sure you want to clear the entire map?')) {
+      setGameState({
+        ...gameState,
+        customMap: {
+          tiles: [],
+          backgroundImage: ''
+        }
+      })
+      setSelectedTiles([])
+    }
+  }
+
+  // Context menu functions
+  const handleContextMenu = (event, tileId) => {
+    event.preventDefault()
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      tileId
+    })
+  }
+
+  const closeContextMenu = () => {
+    setContextMenu(null)
+  }
+
+  // Bulk operations
+  const bulkUpdateSize = (newSize) => {
+    if (selectedTiles.length === 0) return
+
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: gameState.customMap.tiles.map(t =>
+          selectedTiles.includes(t.id) ? { ...t, size: newSize } : t
+        )
+      }
+    })
+  }
+
+  const bulkUpdateShape = (newShape) => {
+    if (selectedTiles.length === 0) return
+
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: gameState.customMap.tiles.map(t =>
+          selectedTiles.includes(t.id) ? { ...t, shape: newShape } : t
+        )
+      }
+    })
   }
 
   const selectedPlayerData = gameState.players.find(p => p.id === selectedPlayer)
@@ -759,6 +1156,82 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
 
           {gameState.mapMode === 'custom' && (
             <>
+              {/* Toolbar */}
+              <div className="map-toolbar">
+                <div className="toolbar-section">
+                  <h4>🔍 View</h4>
+                  <button onClick={zoomOut} title="Zoom Out">-</button>
+                  <span>{Math.round(canvasZoom * 100)}%</span>
+                  <button onClick={zoomIn} title="Zoom In">+</button>
+                  <button onClick={resetZoom} title="Reset Zoom">Reset</button>
+                </div>
+
+                <div className="toolbar-section">
+                  <h4>📋 Edit</h4>
+                  <button onClick={copySelectedTiles} disabled={selectedTiles.length === 0} title="Copy (Ctrl+C)">Copy</button>
+                  <button onClick={pasteCopiedTiles} disabled={copiedTiles.length === 0} title="Paste (Ctrl+V)">Paste</button>
+                  <button onClick={duplicateSelectedTiles} disabled={selectedTiles.length === 0} title="Duplicate">Duplicate</button>
+                  <button onClick={deleteSelectedTiles} disabled={selectedTiles.length === 0} className="danger-button small" title="Delete (Del)">Delete</button>
+                </div>
+
+                <div className="toolbar-section">
+                  <h4>🎯 Select</h4>
+                  <button onClick={selectAllTiles}>Select All</button>
+                  <button onClick={deselectAllTiles} disabled={selectedTiles.length === 0}>Deselect All</button>
+                  <span className="selection-count">{selectedTiles.length} selected</span>
+                </div>
+
+                <div className="toolbar-section">
+                  <h4>📏 Align</h4>
+                  <button onClick={() => alignTiles('left')} disabled={selectedTiles.length < 2} title="Align Left">⬅</button>
+                  <button onClick={() => alignTiles('center-h')} disabled={selectedTiles.length < 2} title="Center Horizontal">↔</button>
+                  <button onClick={() => alignTiles('right')} disabled={selectedTiles.length < 2} title="Align Right">➡</button>
+                  <button onClick={() => alignTiles('top')} disabled={selectedTiles.length < 2} title="Align Top">⬆</button>
+                  <button onClick={() => alignTiles('center-v')} disabled={selectedTiles.length < 2} title="Center Vertical">↕</button>
+                  <button onClick={() => alignTiles('bottom')} disabled={selectedTiles.length < 2} title="Align Bottom">⬇</button>
+                </div>
+
+                <div className="toolbar-section">
+                  <h4>📐 Distribute</h4>
+                  <button onClick={() => distributeTiles('horizontal')} disabled={selectedTiles.length < 3} title="Distribute Horizontally">↔️</button>
+                  <button onClick={() => distributeTiles('vertical')} disabled={selectedTiles.length < 3} title="Distribute Vertically">↕️</button>
+                </div>
+
+                <div className="toolbar-section">
+                  <h4>💾 Map</h4>
+                  <button onClick={exportMap} title="Export Map">Export</button>
+                  <label className="file-button">
+                    Import
+                    <input type="file" accept=".json" onChange={importMap} style={{ display: 'none' }} />
+                  </label>
+                  <button onClick={saveAsTemplate} title="Save as Template">Save Template</button>
+                  <button onClick={clearMap} className="danger-button small" title="Clear Map">Clear</button>
+                </div>
+
+                <div className="toolbar-section">
+                  <h4>🔧 Tools</h4>
+                  <button onClick={autoNumberTiles} title="Auto-number all tiles">Auto-Number</button>
+                </div>
+              </div>
+
+              {/* Map Templates */}
+              <div className="map-templates">
+                <h4>📚 Templates</h4>
+                <div className="template-list">
+                  {JSON.parse(localStorage.getItem('mapTemplates') || '[]').map(template => (
+                    <div key={template.id} className="template-item">
+                      <span>{template.name}</span>
+                      <button onClick={() => loadTemplate(template.id)} className="small">Load</button>
+                      <button onClick={() => deleteTemplate(template.id)} className="danger-button small">×</button>
+                    </div>
+                  ))}
+                  {JSON.parse(localStorage.getItem('mapTemplates') || '[]').length === 0 && (
+                    <p className="hint">No templates saved yet</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Background Controls */}
               <div className="background-image-controls">
                 <h3>🖼️ Map Background</h3>
                 <div className="background-options">
@@ -790,102 +1263,262 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                 </div>
               </div>
 
-              <p className="map-instructions">
-                Click anywhere on the canvas to add a tile. Click a tile to select it for editing or moving.
-              </p>
-
-              <div
-                className="map-canvas"
-                onClick={addTile}
-                style={{
-                  backgroundImage: gameState.customMap?.backgroundImage
-                    ? `url(${gameState.customMap.backgroundImage})`
-                    : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
-              >
-                {(gameState.customMap?.tiles || []).map(tile => (
-                  <div
-                    key={tile.id}
-                    className={`custom-tile ${selectedTile === tile.id ? 'selected' : ''} shape-${tile.shape || 'circle'}`}
-                    style={{
-                      left: `${tile.x}%`,
-                      top: `${tile.y}%`,
-                      width: `${tile.size || 80}px`,
-                      height: `${tile.size || 80}px`
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setSelectedTile(tile.id)
-                    }}
-                    onDoubleClick={(e) => {
-                      e.stopPropagation()
-                      moveTile(tile.id, e)
-                    }}
-                  >
-                    <div className="tile-label">{tile.label}</div>
-                  </div>
-                ))}
-                {(gameState.customMap?.tiles || []).length === 0 && (
-                  <div className="empty-canvas">
-                    <p>Click to add your first tile</p>
-                  </div>
-                )}
+              {/* Tile Filter/Search */}
+              <div className="tile-filter">
+                <input
+                  type="text"
+                  value={tileFilter}
+                  onChange={(e) => setTileFilter(e.target.value)}
+                  placeholder="🔍 Search tiles by label..."
+                  className="filter-input"
+                />
               </div>
 
-              {selectedTile && (
-                <div className="tile-editor">
-                  <h3>Edit Selected Tile</h3>
-                  <div className="tile-editor-controls">
-                    <div className="input-group">
-                      <label>Label:</label>
-                      <input
-                        type="text"
-                        value={gameState.customMap.tiles.find(t => t.id === selectedTile)?.label || ''}
-                        onChange={(e) => updateTileLabel(selectedTile, e.target.value)}
-                        placeholder="Tile label"
-                      />
-                    </div>
-                    <div className="input-group">
-                      <label>Size: {gameState.customMap.tiles.find(t => t.id === selectedTile)?.size || 80}px</label>
-                      <input
-                        type="range"
-                        min="40"
-                        max="200"
-                        value={gameState.customMap.tiles.find(t => t.id === selectedTile)?.size || 80}
-                        onChange={(e) => updateTileSize(selectedTile, parseInt(e.target.value))}
-                      />
-                    </div>
-                    <div className="input-group">
-                      <label>Shape:</label>
-                      <select
-                        value={gameState.customMap.tiles.find(t => t.id === selectedTile)?.shape || 'circle'}
-                        onChange={(e) => updateTileShape(selectedTile, e.target.value)}
+              <p className="map-instructions">
+                Click to add tiles • Shift+Click to multi-select • Double-click to move • Right-click for options
+              </p>
+
+              {/* Map Canvas */}
+              <div
+                className="map-canvas-container"
+                onClick={closeContextMenu}
+              >
+                <div
+                  className="map-canvas"
+                  onClick={addTile}
+                  style={{
+                    backgroundImage: gameState.customMap?.backgroundImage
+                      ? `url(${gameState.customMap.backgroundImage})`
+                      : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    transform: `scale(${canvasZoom}) translate(${canvasPan.x}px, ${canvasPan.y}px)`
+                  }}
+                >
+                  {/* Render connections */}
+                  <svg className="connections-layer" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                    {(gameState.customMap?.tiles || []).map(tile =>
+                      (tile.connections || []).map(connId => {
+                        const connTile = (gameState.customMap?.tiles || []).find(t => t.id === connId)
+                        if (!connTile) return null
+                        return (
+                          <line
+                            key={`${tile.id}-${connId}`}
+                            x1={`${tile.x}%`}
+                            y1={`${tile.y}%`}
+                            x2={`${connTile.x}%`}
+                            y2={`${connTile.y}%`}
+                            stroke="#6C63FF"
+                            strokeWidth="3"
+                            strokeDasharray="5,5"
+                            opacity="0.6"
+                          />
+                        )
+                      })
+                    )}
+                  </svg>
+
+                  {/* Render tiles */}
+                  {(gameState.customMap?.tiles || [])
+                    .filter(tile => !tileFilter || tile.label.toLowerCase().includes(tileFilter.toLowerCase()))
+                    .map(tile => (
+                      <div
+                        key={tile.id}
+                        className={`custom-tile ${selectedTiles.includes(tile.id) ? 'selected' : ''} ${tile.locked ? 'locked' : ''} shape-${tile.shape || 'circle'}`}
+                        style={{
+                          left: `${tile.x}%`,
+                          top: `${tile.y}%`,
+                          width: `${tile.size || 80}px`,
+                          height: `${tile.size || 80}px`,
+                          background: tile.color || undefined,
+                          transform: `translate(-50%, -50%) rotate(${tile.rotation || 0}deg) ${tile.shape === 'diamond' ? 'rotate(45deg)' : ''}`
+                        }}
+                        onClick={(e) => toggleTileSelection(tile.id, e)}
+                        onDoubleClick={(e) => {
+                          e.stopPropagation()
+                          if (!tile.locked) moveTile(tile.id, e)
+                        }}
+                        onContextMenu={(e) => handleContextMenu(e, tile.id)}
                       >
-                        <option value="circle">● Circle</option>
-                        <option value="square">■ Square</option>
-                        <option value="diamond">◆ Diamond</option>
-                        <option value="hexagon">⬡ Hexagon</option>
-                        <option value="star">★ Star</option>
-                      </select>
+                        <div className="tile-label" style={{ transform: `rotate(-${tile.rotation || 0}deg) ${tile.shape === 'diamond' ? 'rotate(-45deg)' : ''}` }}>
+                          {tile.label}
+                        </div>
+                        {tile.locked && <div className="lock-indicator">🔒</div>}
+                      </div>
+                    ))}
+
+                  {(gameState.customMap?.tiles || []).length === 0 && (
+                    <div className="empty-canvas">
+                      <p>Click to add your first tile</p>
                     </div>
-                    <button
-                      className="danger-button"
-                      onClick={() => deleteTile(selectedTile)}
-                    >
-                      🗑️ Delete Tile
-                    </button>
-                    <button onClick={() => setSelectedTile(null)}>
-                      Deselect
-                    </button>
-                  </div>
-                  <p className="hint">Double-click a tile to move it to a new position</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Context Menu */}
+              {contextMenu && (
+                <div
+                  className="context-menu"
+                  style={{ left: contextMenu.x, top: contextMenu.y }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button onClick={() => { copySelectedTiles(); closeContextMenu(); }}>Copy</button>
+                  <button onClick={() => { duplicateSelectedTiles(); closeContextMenu(); }}>Duplicate</button>
+                  <button onClick={() => { toggleTileLock(contextMenu.tileId); closeContextMenu(); }}>
+                    {(gameState.customMap?.tiles || []).find(t => t.id === contextMenu.tileId)?.locked ? 'Unlock' : 'Lock'}
+                  </button>
+                  <button onClick={() => { deleteTile(contextMenu.tileId); closeContextMenu(); }} className="danger-button">Delete</button>
+                </div>
+              )}
+
+              {/* Tile Editor */}
+              {selectedTiles.length > 0 && (
+                <div className="tile-editor">
+                  <h3>
+                    {selectedTiles.length === 1 ? 'Edit Tile' : `Edit ${selectedTiles.length} Tiles`}
+                  </h3>
+
+                  {selectedTiles.length === 1 && (() => {
+                    const tile = gameState.customMap.tiles.find(t => t.id === selectedTiles[0])
+                    return (
+                      <div className="tile-editor-controls">
+                        <div className="input-group">
+                          <label>Label:</label>
+                          <input
+                            type="text"
+                            value={tile?.label || ''}
+                            onChange={(e) => updateTileLabel(selectedTiles[0], e.target.value)}
+                            placeholder="Tile label"
+                          />
+                        </div>
+                        <div className="input-group">
+                          <label>Size: {tile?.size || 80}px</label>
+                          <input
+                            type="range"
+                            min="40"
+                            max="200"
+                            value={tile?.size || 80}
+                            onChange={(e) => updateTileSize(selectedTiles[0], parseInt(e.target.value))}
+                          />
+                        </div>
+                        <div className="input-group">
+                          <label>Shape:</label>
+                          <select
+                            value={tile?.shape || 'circle'}
+                            onChange={(e) => updateTileShape(selectedTiles[0], e.target.value)}
+                          >
+                            <option value="circle">● Circle</option>
+                            <option value="square">■ Square</option>
+                            <option value="diamond">◆ Diamond</option>
+                            <option value="hexagon">⬡ Hexagon</option>
+                            <option value="star">★ Star</option>
+                          </select>
+                        </div>
+                        <div className="input-group">
+                          <label>Color:</label>
+                          <input
+                            type="color"
+                            value={tile?.color || '#6C63FF'}
+                            onChange={(e) => updateTileColor(selectedTiles[0], e.target.value)}
+                          />
+                          <button onClick={() => updateTileColor(selectedTiles[0], null)} className="small">Reset</button>
+                        </div>
+                        <div className="input-group">
+                          <label>Rotation: {tile?.rotation || 0}°</label>
+                          <input
+                            type="range"
+                            min="0"
+                            max="360"
+                            value={tile?.rotation || 0}
+                            onChange={(e) => updateTileRotation(selectedTiles[0], parseInt(e.target.value))}
+                          />
+                        </div>
+                        <div className="input-group">
+                          <label>Connections:</label>
+                          <select
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                toggleConnection(selectedTiles[0], parseInt(e.target.value))
+                                e.target.value = ''
+                              }
+                            }}
+                          >
+                            <option value="">Toggle connection...</option>
+                            {(gameState.customMap?.tiles || [])
+                              .filter(t => t.id !== selectedTiles[0])
+                              .map(t => (
+                                <option key={t.id} value={t.id}>
+                                  {(tile?.connections || []).includes(t.id) ? '✓ ' : ''}
+                                  {t.label}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+                        <div className="button-group">
+                          <button onClick={() => toggleTileLock(selectedTiles[0])}>
+                            {tile?.locked ? '🔓 Unlock' : '🔒 Lock'}
+                          </button>
+                          <button
+                            className="danger-button"
+                            onClick={() => deleteTile(selectedTiles[0])}
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  {selectedTiles.length > 1 && (
+                    <div className="bulk-editor-controls">
+                      <p className="hint">Bulk editing {selectedTiles.length} tiles</p>
+                      <div className="input-group">
+                        <label>Size:</label>
+                        <input
+                          type="range"
+                          min="40"
+                          max="200"
+                          onChange={(e) => bulkUpdateSize(parseInt(e.target.value))}
+                        />
+                      </div>
+                      <div className="input-group">
+                        <label>Shape:</label>
+                        <select onChange={(e) => bulkUpdateShape(e.target.value)}>
+                          <option value="">Choose shape...</option>
+                          <option value="circle">● Circle</option>
+                          <option value="square">■ Square</option>
+                          <option value="diamond">◆ Diamond</option>
+                          <option value="hexagon">⬡ Hexagon</option>
+                          <option value="star">★ Star</option>
+                        </select>
+                      </div>
+                      <div className="input-group">
+                        <label>Color:</label>
+                        <input
+                          type="color"
+                          onChange={(e) => updateTileColor(null, e.target.value)}
+                        />
+                        <button onClick={() => updateTileColor(null, null)} className="small">Reset</button>
+                      </div>
+                      <div className="button-group">
+                        <button onClick={() => toggleTileLock(null)}>Toggle Lock</button>
+                        <button
+                          className="danger-button"
+                          onClick={deleteSelectedTiles}
+                        >
+                          🗑️ Delete All
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  <p className="hint">Double-click a tile to move it • Right-click for more options</p>
                 </div>
               )}
 
               <div className="map-stats">
                 <p>Total Tiles: {(gameState.customMap?.tiles || []).length}</p>
+                <p>Selected: {selectedTiles.length}</p>
+                {copiedTiles.length > 0 && <p>Clipboard: {copiedTiles.length} tiles</p>}
               </div>
             </>
           )}

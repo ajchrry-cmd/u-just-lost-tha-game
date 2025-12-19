@@ -120,6 +120,30 @@ export default function DisplayView({ onBack }) {
               backgroundSize: 'cover',
               backgroundPosition: 'center'
             }}>
+              {/* Render connections */}
+              <svg className="connections-layer" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
+                {customTiles.map(tile =>
+                  (tile.connections || []).map(connId => {
+                    const connTile = customTiles.find(t => t.id === connId)
+                    if (!connTile) return null
+                    return (
+                      <line
+                        key={`${tile.id}-${connId}`}
+                        x1={`${tile.x}%`}
+                        y1={`${tile.y}%`}
+                        x2={`${connTile.x}%`}
+                        y2={`${connTile.y}%`}
+                        stroke="#6C63FF"
+                        strokeWidth="4"
+                        strokeDasharray="8,8"
+                        opacity="0.7"
+                      />
+                    )
+                  })
+                )}
+              </svg>
+
+              {/* Render tiles */}
               {customTiles.map(tile => {
                 const playersHere = getPlayersAtTile(tile.id)
                 return (
@@ -130,12 +154,17 @@ export default function DisplayView({ onBack }) {
                       left: `${tile.x}%`,
                       top: `${tile.y}%`,
                       width: `${tile.size || 80}px`,
-                      height: `${tile.size || 80}px`
+                      height: `${tile.size || 80}px`,
+                      background: tile.color || undefined,
+                      transform: `translate(-50%, -50%) rotate(${tile.rotation || 0}deg) ${tile.shape === 'diamond' ? 'rotate(45deg)' : ''}`,
+                      zIndex: 2
                     }}
                   >
-                    <div className="tile-label-display">{tile.label}</div>
+                    <div className="tile-label-display" style={{ transform: `rotate(-${tile.rotation || 0}deg) ${tile.shape === 'diamond' ? 'rotate(-45deg)' : ''}` }}>
+                      {tile.label}
+                    </div>
                     {playersHere.length > 0 && (
-                      <div className="tile-players">
+                      <div className="tile-players" style={{ transform: `rotate(-${tile.rotation || 0}deg) ${tile.shape === 'diamond' ? 'rotate(-45deg)' : ''}` }}>
                         {playersHere.map(player => (
                           <div
                             key={player.id}
