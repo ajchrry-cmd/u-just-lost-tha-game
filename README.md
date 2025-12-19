@@ -63,6 +63,36 @@ npm run dev
 
 4. Open your browser and go to the URL shown (usually `http://localhost:5173`)
 
+## 🌐 GitHub Pages Deployment
+
+This app is configured to automatically deploy to GitHub Pages!
+
+### Automatic Deployment
+
+The app will automatically deploy when you push to the `main` or `master` branch. The GitHub Actions workflow will:
+1. Build the app
+2. Deploy to GitHub Pages
+3. Make it available at: `https://<username>.github.io/u-just-lost-tha-game/`
+
+### Manual Setup (One-time)
+
+1. Go to your repository on GitHub
+2. Click **Settings** → **Pages**
+3. Under "Build and deployment":
+   - **Source**: Select "GitHub Actions"
+4. Push your code to the `main` or `master` branch
+5. Wait for the workflow to complete (check the **Actions** tab)
+6. Your app will be live at the GitHub Pages URL!
+
+### Using the Deployed App
+
+Once deployed:
+1. **On your phone**: Visit `https://<username>.github.io/u-just-lost-tha-game/` and click "Game Master Control"
+2. **On your TV**: Visit the same URL in a new tab/device and click "TV Display View"
+3. Start playing!
+
+Note: The app syncs using localStorage within the same browser. For the TV display to sync with your phone, they need to be on the same device (different tabs) or you can bookmark each view on different devices and refresh manually.
+
 ## 📱 How to Use
 
 ### Setup
