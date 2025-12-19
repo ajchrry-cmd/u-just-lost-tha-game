@@ -101,37 +101,85 @@ export default function DisplayView({ onBack }) {
     return gameState.players.filter(p => p.position === position)
   }
 
-  const renderGameView = () => (
-    <div className="display-content">
-      <section className="map-section">
-        <div className="game-map" style={{
-          gridTemplateColumns: `repeat(${gameState.mapGrid.cols}, 1fr)`,
-          gridTemplateRows: `repeat(${gameState.mapGrid.rows}, 1fr)`
-        }}>
-          {gameState.mapGrid.tiles.map((tile, index) => {
-            const playersHere = getPlayersAtPosition(index)
-            return (
-              <div key={tile.id} className="map-tile" data-tile-type={tile.type}>
-                <span className="tile-number">{index}</span>
-                {playersHere.length > 0 && (
-                  <div className="tile-players">
-                    {playersHere.map(player => (
-                      <div
-                        key={player.id}
-                        className="player-marker"
-                        style={{ backgroundColor: player.color }}
-                        title={player.name}
-                      >
-                        {player.name.charAt(0)}
+  const getPlayersAtTile = (tileId) => {
+    return gameState.players.filter(p => p.position === tileId)
+  }
+
+  const renderGameView = () => {
+    const isCustomMode = gameState.mapMode === 'custom'
+    const customTiles = gameState.customMap?.tiles || []
+
+    return (
+      <div className="display-content">
+        <section className="map-section">
+          {isCustomMode ? (
+            <div className="custom-map-display">
+              {customTiles.map(tile => {
+                const playersHere = getPlayersAtTile(tile.id)
+                return (
+                  <div
+                    key={tile.id}
+                    className="custom-map-tile"
+                    style={{
+                      left: `${tile.x}%`,
+                      top: `${tile.y}%`
+                    }}
+                  >
+                    <div className="tile-label-display">{tile.label}</div>
+                    {playersHere.length > 0 && (
+                      <div className="tile-players">
+                        {playersHere.map(player => (
+                          <div
+                            key={player.id}
+                            className="player-marker"
+                            style={{ backgroundColor: player.color }}
+                            title={player.name}
+                          >
+                            {player.name.charAt(0)}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      </section>
+                )
+              })}
+              {customTiles.length === 0 && (
+                <div className="empty-map-message">
+                  <p>No tiles on the map yet</p>
+                  <p className="hint">Add tiles from the Game Master panel</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="game-map" style={{
+              gridTemplateColumns: `repeat(${gameState.mapGrid.cols}, 1fr)`,
+              gridTemplateRows: `repeat(${gameState.mapGrid.rows}, 1fr)`
+            }}>
+              {gameState.mapGrid.tiles.map((tile, index) => {
+                const playersHere = getPlayersAtPosition(index)
+                return (
+                  <div key={tile.id} className="map-tile" data-tile-type={tile.type}>
+                    <span className="tile-number">{index}</span>
+                    {playersHere.length > 0 && (
+                      <div className="tile-players">
+                        {playersHere.map(player => (
+                          <div
+                            key={player.id}
+                            className="player-marker"
+                            style={{ backgroundColor: player.color }}
+                            title={player.name}
+                          >
+                            {player.name.charAt(0)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </section>
 
       <section className="players-stats">
         {gameState.players.length === 0 && (
@@ -194,6 +242,7 @@ export default function DisplayView({ onBack }) {
       </section>
     </div>
   )
+  }
 
   const renderShopView = () => (
     <div className="shop-scene">

@@ -19,6 +19,7 @@ function App() {
       shopItems: [],
       customScenes: [], // Saved custom scenes (image, text, and wheel)
       wheelSpinTrigger: null, // Timestamp to trigger wheel spins from GM
+      mapMode: 'custom', // 'grid' or 'custom'
       mapGrid: {
         rows: 5,
         cols: 5,
@@ -27,6 +28,9 @@ function App() {
           type: 'normal',
           label: ''
         }))
+      },
+      customMap: {
+        tiles: [] // Each tile has: { id, x, y, type, label, connections }
       }
     }
   })

@@ -878,6 +878,147 @@
   transform: scale(0.98);
 }
 
+/* Map Editor */
+.map-mode-toggle {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.mode-button {
+  flex: 1;
+  padding: 1rem;
+  background: var(--bg-medium);
+  color: var(--text-primary);
+  border: 2px solid var(--bg-light);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mode-button:hover {
+  background: var(--bg-dark);
+  border-color: var(--primary-color);
+}
+
+.mode-button.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 0 20px rgba(108, 99, 255, 0.4);
+}
+
+.map-instructions {
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.map-canvas {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: var(--bg-dark);
+  border: 2px solid var(--bg-light);
+  border-radius: var(--border-radius);
+  margin-bottom: 1.5rem;
+  cursor: crosshair;
+  overflow: hidden;
+}
+
+.custom-tile {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border: 3px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.custom-tile:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 6px 16px rgba(108, 99, 255, 0.5);
+}
+
+.custom-tile.selected {
+  border-color: var(--warning-color);
+  box-shadow: 0 0 20px rgba(255, 215, 61, 0.8);
+  animation: selectedPulse 1s ease-in-out infinite;
+}
+
+@keyframes selectedPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+.tile-label {
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 0.25rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.empty-canvas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+}
+
+.tile-editor {
+  background: var(--bg-medium);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+}
+
+.tile-editor h3 {
+  color: var(--secondary-color);
+  margin-bottom: 1rem;
+}
+
+.tile-editor-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.tile-editor-controls .input-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.map-stats {
+  background: var(--bg-medium);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  text-align: center;
+}
+
+.map-stats p {
+  color: var(--text-primary);
+  font-weight: bold;
+  margin: 0;
+}
+
 @media (max-width: 768px) {
   .gm-content {
     padding: 1rem;

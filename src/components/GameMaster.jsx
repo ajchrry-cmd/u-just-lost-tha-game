@@ -21,7 +21,11 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   const [wheelSceneName, setWheelSceneName] = useState('')
   const [wheelOutcomes, setWheelOutcomes] = useState([])
   const [newOutcomeName, setNewOutcomeName] = useState('')
-  const [newOutcomePercentage, setNewOutcomePercentage] = useState(25)
+  const [newOutcomePercentage] = useState(25)
+
+  // Map editor state
+  const [selectedTile, setSelectedTile] = useState(null)
+  const [newTileLabel, setNewTileLabel] = useState('')
 
   const addPlayer = () => {
     if (newPlayerName.trim()) {
@@ -343,6 +347,75 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     })
   }
 
+  // Custom map functions
+  const toggleMapMode = () => {
+    setGameState({
+      ...gameState,
+      mapMode: gameState.mapMode === 'grid' ? 'custom' : 'grid'
+    })
+  }
+
+  const addTile = (event) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const x = ((event.clientX - rect.left) / rect.width) * 100
+    const y = ((event.clientY - rect.top) / rect.height) * 100
+
+    const newTile = {
+      id: Date.now(),
+      x: Math.round(x),
+      y: Math.round(y),
+      label: `Tile ${(gameState.customMap?.tiles.length || 0) + 1}`,
+      type: 'normal'
+    }
+
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: [...(gameState.customMap?.tiles || []), newTile]
+      }
+    })
+  }
+
+  const deleteTile = (tileId) => {
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: gameState.customMap.tiles.filter(t => t.id !== tileId)
+      }
+    })
+    if (selectedTile === tileId) setSelectedTile(null)
+  }
+
+  const updateTileLabel = (tileId, newLabel) => {
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: gameState.customMap.tiles.map(t =>
+          t.id === tileId ? { ...t, label: newLabel } : t
+        )
+      }
+    })
+  }
+
+  const moveTile = (tileId, event) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const x = ((event.clientX - rect.left) / rect.width) * 100
+    const y = ((event.clientY - rect.top) / rect.height) * 100
+
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: gameState.customMap.tiles.map(t =>
+          t.id === tileId ? { ...t, x: Math.round(x), y: Math.round(y) } : t
+        )
+      }
+    })
+  }
+
   const selectedPlayerData = gameState.players.find(p => p.id === selectedPlayer)
 
   return (
@@ -617,6 +690,99 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               💾 Save Wheel Scene
             </button>
           </div>
+        </section>
+
+        <section className="section map-editor">
+          <h2>🗺️ Game Map Editor</h2>
+
+          <div className="map-mode-toggle">
+            <button
+              className={`mode-button ${gameState.mapMode === 'grid' ? 'active' : ''}`}
+              onClick={toggleMapMode}
+            >
+              📐 Grid Mode
+            </button>
+            <button
+              className={`mode-button ${gameState.mapMode === 'custom' ? 'active' : ''}`}
+              onClick={toggleMapMode}
+            >
+              ✨ Custom Mode
+            </button>
+          </div>
+
+          {gameState.mapMode === 'custom' && (
+            <>
+              <p className="map-instructions">
+                Click anywhere on the canvas to add a tile. Click a tile to select it for editing or moving.
+              </p>
+
+              <div
+                className="map-canvas"
+                onClick={addTile}
+              >
+                {(gameState.customMap?.tiles || []).map(tile => (
+                  <div
+                    key={tile.id}
+                    className={`custom-tile ${selectedTile === tile.id ? 'selected' : ''}`}
+                    style={{
+                      left: `${tile.x}%`,
+                      top: `${tile.y}%`
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSelectedTile(tile.id)
+                    }}
+                    onDoubleClick={(e) => {
+                      e.stopPropagation()
+                      moveTile(tile.id, e)
+                    }}
+                  >
+                    <div className="tile-label">{tile.label}</div>
+                  </div>
+                ))}
+                {(gameState.customMap?.tiles || []).length === 0 && (
+                  <div className="empty-canvas">
+                    <p>Click to add your first tile</p>
+                  </div>
+                )}
+              </div>
+
+              {selectedTile && (
+                <div className="tile-editor">
+                  <h3>Edit Selected Tile</h3>
+                  <div className="tile-editor-controls">
+                    <div className="input-group">
+                      <label>Label:</label>
+                      <input
+                        type="text"
+                        value={gameState.customMap.tiles.find(t => t.id === selectedTile)?.label || ''}
+                        onChange={(e) => updateTileLabel(selectedTile, e.target.value)}
+                        placeholder="Tile label"
+                      />
+                    </div>
+                    <button
+                      className="danger-button"
+                      onClick={() => deleteTile(selectedTile)}
+                    >
+                      🗑️ Delete Tile
+                    </button>
+                    <button onClick={() => setSelectedTile(null)}>
+                      Deselect
+                    </button>
+                  </div>
+                  <p className="hint">Double-click a tile to move it to a new position</p>
+                </div>
+              )}
+
+              <div className="map-stats">
+                <p>Total Tiles: {(gameState.customMap?.tiles || []).length}</p>
+              </div>
+            </>
+          )}
+
+          {gameState.mapMode === 'grid' && (
+            <p className="hint">Grid mode uses the classic 5x5 grid layout</p>
+          )}
         </section>
 
         <section className="section player-management">
