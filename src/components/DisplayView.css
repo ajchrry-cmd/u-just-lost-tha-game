@@ -6,6 +6,60 @@
   position: relative;
 }
 
+/* Force landscape orientation message */
+.rotate-message {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-dark);
+  z-index: 9999;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.rotate-message-icon {
+  font-size: 5rem;
+  margin-bottom: 2rem;
+  animation: rotate 2s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(90deg);
+  }
+}
+
+.rotate-message h2 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.rotate-message p {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+}
+
+/* Show rotation message in portrait mode on mobile/tablet */
+@media (max-width: 1024px) and (orientation: portrait) {
+  .display-view > *:not(.rotate-message) {
+    display: none !important;
+  }
+
+  .rotate-message {
+    display: flex !important;
+  }
+}
+
 .back-button-display {
   position: fixed;
   top: 1rem;

@@ -45,6 +45,12 @@ export default function DisplayView({ onBack }) {
 
   return (
     <div className="display-view">
+      <div className="rotate-message">
+        <div className="rotate-message-icon">📱➡️📺</div>
+        <h2>Please Rotate Your Device</h2>
+        <p>This display works best in landscape mode</p>
+      </div>
+
       <button className="back-button-display" onClick={onBack}>← Exit Display</button>
 
       <header className="display-header">
