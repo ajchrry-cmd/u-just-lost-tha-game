@@ -336,6 +336,13 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     })
   }
 
+  const triggerWheelSpin = () => {
+    setGameState({
+      ...gameState,
+      wheelSpinTrigger: Date.now()
+    })
+  }
+
   const selectedPlayerData = gameState.players.find(p => p.id === selectedPlayer)
 
   return (
@@ -377,6 +384,15 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               🛒 Shop
             </button>
           </div>
+
+          {/* Wheel Spin Control */}
+          {gameState.currentScene?.type === 'wheel' && (
+            <div className="wheel-spin-control">
+              <button className="spin-wheel-button" onClick={triggerWheelSpin}>
+                🎡 Spin the Wheel on TV!
+              </button>
+            </div>
+          )}
 
           {/* Saved Custom Scenes */}
           {gameState.customScenes && gameState.customScenes.length > 0 && (

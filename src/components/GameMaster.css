@@ -837,6 +837,47 @@
   font-size: 0.9rem;
 }
 
+/* Wheel Spin Control */
+.wheel-spin-control {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: var(--border-radius);
+  text-align: center;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(108, 99, 255, 0.7);
+  }
+}
+
+.spin-wheel-button {
+  padding: 1rem 3rem;
+  font-size: 1.3rem;
+  font-weight: bold;
+  background: white;
+  color: var(--primary-color);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.spin-wheel-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.spin-wheel-button:active {
+  transform: scale(0.98);
+}
+
 @media (max-width: 768px) {
   .gm-content {
     padding: 1rem;

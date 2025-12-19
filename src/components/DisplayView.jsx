@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import './DisplayView.css'
 
 export default function DisplayView({ onBack }) {
@@ -42,6 +42,13 @@ export default function DisplayView({ onBack }) {
       clearInterval(interval)
     }
   }, [])
+
+  // Watch for wheel spin trigger from Game Master
+  useEffect(() => {
+    if (gameState.wheelSpinTrigger && gameState.currentScene?.type === 'wheel' && !isSpinning) {
+      spinWheel()
+    }
+  }, [gameState.wheelSpinTrigger, gameState.currentScene?.type, isSpinning, spinWheel])
 
   const getPlayersAtPosition = (position) => {
     return gameState.players.filter(p => p.position === position)
@@ -192,7 +199,7 @@ export default function DisplayView({ onBack }) {
     </div>
   )
 
-  const spinWheel = () => {
+  const spinWheel = useCallback(() => {
     if (isSpinning || !sceneData.outcomes || sceneData.outcomes.length < 2) return
 
     setIsSpinning(true)
@@ -227,7 +234,7 @@ export default function DisplayView({ onBack }) {
       setIsSpinning(false)
       setWheelResult(selectedOutcome)
     }, 4000)
-  }
+  }, [isSpinning, sceneData.outcomes, wheelRotation])
 
   const renderWheelView = () => {
     const outcomes = sceneData.outcomes || []
@@ -317,13 +324,11 @@ export default function DisplayView({ onBack }) {
           </div>
         )}
 
-        <button
-          className="spin-button"
-          onClick={spinWheel}
-          disabled={isSpinning}
-        >
-          {isSpinning ? '🎡 Spinning...' : '🎡 Spin the Wheel!'}
-        </button>
+        {isSpinning && (
+          <div className="spinning-message">
+            <h2>🎡 Spinning...</h2>
+          </div>
+        )}
       </div>
     )
   }

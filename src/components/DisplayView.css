@@ -626,6 +626,31 @@
   }
 }
 
+.spinning-message {
+  padding: 1.5rem 3rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 20px;
+  animation: spinPulse 1s ease-in-out infinite;
+}
+
+.spinning-message h2 {
+  margin: 0;
+  font-size: 2rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes spinPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
 /* Empty Scene State */
 .empty-scene {
   display: flex;

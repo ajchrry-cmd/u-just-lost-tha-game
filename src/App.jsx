@@ -18,6 +18,7 @@ function App() {
       },
       shopItems: [],
       customScenes: [], // Saved custom scenes (image, text, and wheel)
+      wheelSpinTrigger: null, // Timestamp to trigger wheel spins from GM
       mapGrid: {
         rows: 5,
         cols: 5,
