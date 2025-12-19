@@ -14,8 +14,10 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   const [newShopItemPrice, setNewShopItemPrice] = useState(10)
   const [imageUrl, setImageUrl] = useState('')
   const [imageTitle, setImageTitle] = useState('')
+  const [imageSceneName, setImageSceneName] = useState('')
   const [customText, setCustomText] = useState('')
   const [customTextTitle, setCustomTextTitle] = useState('')
+  const [textSceneName, setTextSceneName] = useState('')
 
   const addPlayer = () => {
     if (newPlayerName.trim()) {
@@ -235,16 +237,55 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     switchScene('shop', { items: gameState.shopItems })
   }
 
-  const showImage = () => {
-    if (imageUrl.trim()) {
-      switchScene('image', { url: imageUrl, title: imageTitle })
+  const saveImageScene = () => {
+    if (imageUrl.trim() && imageSceneName.trim()) {
+      setGameState({
+        ...gameState,
+        customScenes: [
+          ...gameState.customScenes,
+          {
+            id: Date.now(),
+            name: imageSceneName,
+            type: 'image',
+            data: { url: imageUrl, title: imageTitle }
+          }
+        ]
+      })
+      setImageUrl('')
+      setImageTitle('')
+      setImageSceneName('')
     }
   }
 
-  const showCustomText = () => {
-    if (customText.trim()) {
-      switchScene('text', { text: customText, title: customTextTitle })
+  const saveTextScene = () => {
+    if (customText.trim() && textSceneName.trim()) {
+      setGameState({
+        ...gameState,
+        customScenes: [
+          ...gameState.customScenes,
+          {
+            id: Date.now(),
+            name: textSceneName,
+            type: 'text',
+            data: { text: customText, title: customTextTitle }
+          }
+        ]
+      })
+      setCustomText('')
+      setCustomTextTitle('')
+      setTextSceneName('')
     }
+  }
+
+  const activateCustomScene = (scene) => {
+    switchScene(scene.type, scene.data)
+  }
+
+  const deleteCustomScene = (sceneId) => {
+    setGameState({
+      ...gameState,
+      customScenes: gameState.customScenes.filter(s => s.id !== sceneId)
+    })
   }
 
   const selectedPlayerData = gameState.players.find(p => p.id === selectedPlayer)
@@ -287,19 +328,36 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
             >
               🛒 Shop
             </button>
-            <button
-              className={`scene-button ${gameState.currentScene?.type === 'image' ? 'active' : ''}`}
-              onClick={showImage}
-            >
-              🖼️ Image
-            </button>
-            <button
-              className={`scene-button ${gameState.currentScene?.type === 'text' ? 'active' : ''}`}
-              onClick={showCustomText}
-            >
-              📄 Custom Text
-            </button>
           </div>
+
+          {/* Saved Custom Scenes */}
+          {gameState.customScenes && gameState.customScenes.length > 0 && (
+            <div className="saved-scenes">
+              <h3>📚 Saved Scenes</h3>
+              <div className="saved-scenes-list">
+                {gameState.customScenes.map(scene => (
+                  <div key={scene.id} className="saved-scene-item">
+                    <span className="scene-icon">{scene.type === 'image' ? '🖼️' : '📄'}</span>
+                    <span className="scene-name">{scene.name}</span>
+                    <div className="scene-actions">
+                      <button
+                        className={`activate-button ${gameState.currentScene?.data === scene.data ? 'active' : ''}`}
+                        onClick={() => activateCustomScene(scene)}
+                      >
+                        Show
+                      </button>
+                      <button
+                        className="delete-button"
+                        onClick={() => deleteCustomScene(scene.id)}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Shop Management */}
           <div className="scene-editor shop-editor">
@@ -336,7 +394,16 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
 
           {/* Image Scene */}
           <div className="scene-editor image-editor">
-            <h3>🖼️ Image Scene</h3>
+            <h3>🖼️ Create Image Scene</h3>
+            <div className="input-group">
+              <label>Scene Name:</label>
+              <input
+                type="text"
+                value={imageSceneName}
+                onChange={(e) => setImageSceneName(e.target.value)}
+                placeholder="e.g., 'Forest Entrance'"
+              />
+            </div>
             <div className="input-group">
               <label>Image Title (optional):</label>
               <input
@@ -355,11 +422,27 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                 placeholder="https://example.com/image.jpg"
               />
             </div>
+            <button
+              className="save-scene-button"
+              onClick={saveImageScene}
+              disabled={!imageUrl.trim() || !imageSceneName.trim()}
+            >
+              💾 Save Image Scene
+            </button>
           </div>
 
           {/* Custom Text Scene */}
           <div className="scene-editor text-editor">
-            <h3>📄 Custom Text Scene</h3>
+            <h3>📄 Create Text Scene</h3>
+            <div className="input-group">
+              <label>Scene Name:</label>
+              <input
+                type="text"
+                value={textSceneName}
+                onChange={(e) => setTextSceneName(e.target.value)}
+                placeholder="e.g., 'Dragon Speech'"
+              />
+            </div>
             <div className="input-group">
               <label>Title (optional):</label>
               <input
@@ -378,6 +461,13 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                 rows="4"
               />
             </div>
+            <button
+              className="save-scene-button"
+              onClick={saveTextScene}
+              disabled={!customText.trim() || !textSceneName.trim()}
+            >
+              💾 Save Text Scene
+            </button>
           </div>
         </section>
 

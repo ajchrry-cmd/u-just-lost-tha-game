@@ -17,6 +17,7 @@ function App() {
         data: {}
       },
       shopItems: [],
+      customScenes: [], // Saved custom scenes (image and text)
       mapGrid: {
         rows: 5,
         cols: 5,
