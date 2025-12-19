@@ -18,6 +18,10 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   const [customText, setCustomText] = useState('')
   const [customTextTitle, setCustomTextTitle] = useState('')
   const [textSceneName, setTextSceneName] = useState('')
+  const [wheelSceneName, setWheelSceneName] = useState('')
+  const [wheelOutcomes, setWheelOutcomes] = useState([])
+  const [newOutcomeName, setNewOutcomeName] = useState('')
+  const [newOutcomePercentage, setNewOutcomePercentage] = useState(25)
 
   const addPlayer = () => {
     if (newPlayerName.trim()) {
@@ -277,6 +281,50 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     }
   }
 
+  const addWheelOutcome = () => {
+    if (newOutcomeName.trim() && newOutcomePercentage > 0) {
+      setWheelOutcomes([
+        ...wheelOutcomes,
+        {
+          id: Date.now(),
+          name: newOutcomeName,
+          percentage: newOutcomePercentage
+        }
+      ])
+      setNewOutcomeName('')
+      setNewOutcomePercentage(25)
+    }
+  }
+
+  const removeWheelOutcome = (outcomeId) => {
+    setWheelOutcomes(wheelOutcomes.filter(o => o.id !== outcomeId))
+  }
+
+  const updateOutcomePercentage = (outcomeId, percentage) => {
+    setWheelOutcomes(wheelOutcomes.map(o =>
+      o.id === outcomeId ? { ...o, percentage: Math.max(0, Math.min(100, percentage)) } : o
+    ))
+  }
+
+  const saveWheelScene = () => {
+    if (wheelSceneName.trim() && wheelOutcomes.length >= 2) {
+      setGameState({
+        ...gameState,
+        customScenes: [
+          ...gameState.customScenes,
+          {
+            id: Date.now(),
+            name: wheelSceneName,
+            type: 'wheel',
+            data: { outcomes: wheelOutcomes }
+          }
+        ]
+      })
+      setWheelSceneName('')
+      setWheelOutcomes([])
+    }
+  }
+
   const activateCustomScene = (scene) => {
     switchScene(scene.type, scene.data)
   }
@@ -337,7 +385,9 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               <div className="saved-scenes-list">
                 {gameState.customScenes.map(scene => (
                   <div key={scene.id} className="saved-scene-item">
-                    <span className="scene-icon">{scene.type === 'image' ? '🖼️' : '📄'}</span>
+                    <span className="scene-icon">
+                      {scene.type === 'image' ? '🖼️' : scene.type === 'wheel' ? '🎡' : '📄'}
+                    </span>
                     <span className="scene-name">{scene.name}</span>
                     <div className="scene-actions">
                       <button
@@ -467,6 +517,88 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               disabled={!customText.trim() || !textSceneName.trim()}
             >
               💾 Save Text Scene
+            </button>
+          </div>
+
+          {/* Spinning Wheel Scene */}
+          <div className="scene-editor wheel-editor">
+            <h3>🎡 Create Spinning Wheel</h3>
+            <div className="input-group">
+              <label>Scene Name:</label>
+              <input
+                type="text"
+                value={wheelSceneName}
+                onChange={(e) => setWheelSceneName(e.target.value)}
+                placeholder="e.g., 'Loot Wheel'"
+              />
+            </div>
+
+            <div className="wheel-outcomes-section">
+              <h4>Wheel Outcomes</h4>
+              <div className="add-wheel-outcome">
+                <input
+                  type="text"
+                  value={newOutcomeName}
+                  onChange={(e) => setNewOutcomeName(e.target.value)}
+                  placeholder="Outcome name"
+                  onKeyPress={(e) => e.key === 'Enter' && addWheelOutcome()}
+                />
+                <input
+                  type="number"
+                  value={newOutcomePercentage}
+                  onChange={(e) => setNewOutcomePercentage(parseInt(e.target.value) || 0)}
+                  placeholder="%"
+                  min="1"
+                  max="100"
+                  style={{ width: '80px' }}
+                />
+                <span className="percentage-label">%</span>
+                <button onClick={addWheelOutcome}>Add</button>
+              </div>
+
+              {wheelOutcomes.length > 0 && (
+                <div className="wheel-outcomes-list">
+                  {wheelOutcomes.map(outcome => (
+                    <div key={outcome.id} className="wheel-outcome-item">
+                      <span className="outcome-name">{outcome.name}</span>
+                      <div className="outcome-controls">
+                        <input
+                          type="number"
+                          value={outcome.percentage}
+                          onChange={(e) => updateOutcomePercentage(outcome.id, parseInt(e.target.value) || 0)}
+                          min="1"
+                          max="100"
+                          style={{ width: '60px' }}
+                        />
+                        <span>%</span>
+                        <button
+                          className="delete-outcome"
+                          onClick={() => removeWheelOutcome(outcome.id)}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="total-percentage">
+                    Total: {wheelOutcomes.reduce((sum, o) => sum + o.percentage, 0)}%
+                    {wheelOutcomes.reduce((sum, o) => sum + o.percentage, 0) !== 100 && (
+                      <span className="warning"> (Doesn't need to equal 100%)</span>
+                    )}
+                  </div>
+                </div>
+              )}
+              {wheelOutcomes.length === 0 && (
+                <p className="empty-hint">Add at least 2 outcomes</p>
+              )}
+            </div>
+
+            <button
+              className="save-scene-button"
+              onClick={saveWheelScene}
+              disabled={!wheelSceneName.trim() || wheelOutcomes.length < 2}
+            >
+              💾 Save Wheel Scene
             </button>
           </div>
         </section>

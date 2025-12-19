@@ -524,6 +524,108 @@
   white-space: pre-wrap;
 }
 
+/* Wheel Scene */
+.wheel-scene {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.wheel-container {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 3rem;
+  z-index: 10;
+  color: var(--warning-color);
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+.spinning-wheel {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.5));
+}
+
+.spin-button {
+  padding: 1.5rem 3rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(108, 99, 255, 0.4);
+}
+
+.spin-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(108, 99, 255, 0.6);
+}
+
+.spin-button:disabled {
+  background: var(--bg-dark);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.wheel-result {
+  padding: 2rem 4rem;
+  background: linear-gradient(135deg, var(--success-color), #40B353);
+  border-radius: 20px;
+  animation: resultPop 0.5s ease-out;
+  box-shadow: 0 8px 24px rgba(76, 209, 55, 0.5);
+}
+
+.wheel-result h2 {
+  margin: 0;
+  font-size: 2.5rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes resultPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* Empty Scene State */
 .empty-scene {
   display: flex;

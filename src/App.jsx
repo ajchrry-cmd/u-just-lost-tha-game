@@ -13,11 +13,11 @@ function App() {
       gameTitle: 'Epic Game Night',
       theme: 'default',
       currentScene: {
-        type: 'game', // 'game', 'shop', 'image', 'text'
+        type: 'game', // 'game', 'shop', 'image', 'text', 'wheel'
         data: {}
       },
       shopItems: [],
-      customScenes: [], // Saved custom scenes (image and text)
+      customScenes: [], // Saved custom scenes (image, text, and wheel)
       mapGrid: {
         rows: 5,
         cols: 5,

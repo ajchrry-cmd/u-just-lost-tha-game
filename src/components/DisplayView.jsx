@@ -21,6 +21,10 @@ export default function DisplayView({ onBack }) {
     }
   })
 
+  const [isSpinning, setIsSpinning] = useState(false)
+  const [wheelRotation, setWheelRotation] = useState(0)
+  const [wheelResult, setWheelResult] = useState(null)
+
   useEffect(() => {
     const handleStorageChange = () => {
       const saved = localStorage.getItem('gameState')
@@ -188,6 +192,142 @@ export default function DisplayView({ onBack }) {
     </div>
   )
 
+  const spinWheel = () => {
+    if (isSpinning || !sceneData.outcomes || sceneData.outcomes.length < 2) return
+
+    setIsSpinning(true)
+    setWheelResult(null)
+
+    // Calculate which outcome to land on based on percentages
+    const outcomes = sceneData.outcomes
+    const totalPercentage = outcomes.reduce((sum, o) => sum + o.percentage, 0)
+    const random = Math.random() * totalPercentage
+
+    let cumulativePercentage = 0
+    let selectedOutcome = outcomes[0]
+
+    for (const outcome of outcomes) {
+      cumulativePercentage += outcome.percentage
+      if (random <= cumulativePercentage) {
+        selectedOutcome = outcome
+        break
+      }
+    }
+
+    // Calculate rotation to land on the selected outcome
+    const outcomeIndex = outcomes.indexOf(selectedOutcome)
+    const segmentAngle = 360 / outcomes.length
+    const targetAngle = 360 - (outcomeIndex * segmentAngle + segmentAngle / 2)
+    const spins = 5 // Number of full rotations
+    const finalRotation = wheelRotation + (spins * 360) + targetAngle + (Math.random() * 20 - 10)
+
+    setWheelRotation(finalRotation)
+
+    setTimeout(() => {
+      setIsSpinning(false)
+      setWheelResult(selectedOutcome)
+    }, 4000)
+  }
+
+  const renderWheelView = () => {
+    const outcomes = sceneData.outcomes || []
+
+    if (outcomes.length === 0) {
+      return (
+        <div className="wheel-scene">
+          <div className="empty-scene">
+            <p>No wheel configured</p>
+            <p className="hint">Add outcomes from the Game Master panel</p>
+          </div>
+        </div>
+      )
+    }
+
+    const segmentAngle = 360 / outcomes.length
+    const colors = ['#6C63FF', '#FF6B6B', '#4ECDC4', '#FFD93D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3']
+
+    return (
+      <div className="wheel-scene">
+        <div className="wheel-container">
+          <div className="wheel-pointer">▼</div>
+          <svg
+            className="spinning-wheel"
+            viewBox="-200 -200 400 400"
+            style={{
+              transform: `rotate(${wheelRotation}deg)`,
+              transition: isSpinning ? 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none'
+            }}
+          >
+            {outcomes.map((outcome, index) => {
+              const startAngle = (index * segmentAngle - 90) * (Math.PI / 180)
+              const endAngle = ((index + 1) * segmentAngle - 90) * (Math.PI / 180)
+              const largeArc = segmentAngle > 180 ? 1 : 0
+
+              const x1 = 180 * Math.cos(startAngle)
+              const y1 = 180 * Math.sin(startAngle)
+              const x2 = 180 * Math.cos(endAngle)
+              const y2 = 180 * Math.sin(endAngle)
+
+              const textAngle = (index * segmentAngle + segmentAngle / 2)
+              const textRadius = 120
+              const textX = textRadius * Math.cos((textAngle - 90) * Math.PI / 180)
+              const textY = textRadius * Math.sin((textAngle - 90) * Math.PI / 180)
+
+              return (
+                <g key={outcome.id}>
+                  <path
+                    d={`M 0 0 L ${x1} ${y1} A 180 180 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                    fill={colors[index % colors.length]}
+                    stroke="#1A1A2E"
+                    strokeWidth="2"
+                  />
+                  <text
+                    x={textX}
+                    y={textY}
+                    fill="white"
+                    fontSize="16"
+                    fontWeight="bold"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    transform={`rotate(${textAngle}, ${textX}, ${textY})`}
+                  >
+                    {outcome.name}
+                  </text>
+                  <text
+                    x={textX}
+                    y={textY + 18}
+                    fill="white"
+                    fontSize="12"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    transform={`rotate(${textAngle}, ${textX}, ${textY + 18})`}
+                  >
+                    {outcome.percentage}%
+                  </text>
+                </g>
+              )
+            })}
+            <circle cx="0" cy="0" r="30" fill="#1A1A2E" stroke="white" strokeWidth="3" />
+          </svg>
+        </div>
+
+        {wheelResult && (
+          <div className="wheel-result">
+            <h2>🎉 Result: {wheelResult.name}</h2>
+          </div>
+        )}
+
+        <button
+          className="spin-button"
+          onClick={spinWheel}
+          disabled={isSpinning}
+        >
+          {isSpinning ? '🎡 Spinning...' : '🎡 Spin the Wheel!'}
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="display-view">
       <div className="rotate-message">
@@ -217,6 +357,7 @@ export default function DisplayView({ onBack }) {
       {currentScene === 'shop' && renderShopView()}
       {currentScene === 'image' && renderImageView()}
       {currentScene === 'text' && renderTextView()}
+      {currentScene === 'wheel' && renderWheelView()}
     </div>
   )
 }
