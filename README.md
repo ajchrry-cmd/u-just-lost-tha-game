@@ -46,9 +46,10 @@ An interactive party game application inspired by "Magic the Noah" style games, 
 
 ### Installation
 
-1. Navigate to the game-master-app directory:
+1. Clone the repository and navigate to it:
 ```bash
-cd game-master-app
+git clone <your-repo-url>
+cd u-just-lost-tha-game
 ```
 
 2. Install dependencies:
