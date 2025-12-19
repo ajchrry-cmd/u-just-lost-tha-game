@@ -119,10 +119,12 @@ export default function DisplayView({ onBack }) {
                 return (
                   <div
                     key={tile.id}
-                    className="custom-map-tile"
+                    className={`custom-map-tile shape-${tile.shape || 'circle'}`}
                     style={{
                       left: `${tile.x}%`,
-                      top: `${tile.y}%`
+                      top: `${tile.y}%`,
+                      width: `${tile.size || 80}px`,
+                      height: `${tile.size || 80}px`
                     }}
                   >
                     <div className="tile-label-display">{tile.label}</div>

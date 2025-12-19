@@ -365,7 +365,9 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
       x: Math.round(x),
       y: Math.round(y),
       label: `Tile ${(gameState.customMap?.tiles.length || 0) + 1}`,
-      type: 'normal'
+      type: 'normal',
+      size: 80, // Default size in pixels
+      shape: 'circle' // Default shape: circle, square, diamond, hexagon
     }
 
     setGameState({
@@ -411,6 +413,30 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
         ...gameState.customMap,
         tiles: gameState.customMap.tiles.map(t =>
           t.id === tileId ? { ...t, x: Math.round(x), y: Math.round(y) } : t
+        )
+      }
+    })
+  }
+
+  const updateTileSize = (tileId, newSize) => {
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: gameState.customMap.tiles.map(t =>
+          t.id === tileId ? { ...t, size: Math.max(40, Math.min(200, newSize)) } : t
+        )
+      }
+    })
+  }
+
+  const updateTileShape = (tileId, newShape) => {
+    setGameState({
+      ...gameState,
+      customMap: {
+        ...gameState.customMap,
+        tiles: gameState.customMap.tiles.map(t =>
+          t.id === tileId ? { ...t, shape: newShape } : t
         )
       }
     })
@@ -723,10 +749,12 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                 {(gameState.customMap?.tiles || []).map(tile => (
                   <div
                     key={tile.id}
-                    className={`custom-tile ${selectedTile === tile.id ? 'selected' : ''}`}
+                    className={`custom-tile ${selectedTile === tile.id ? 'selected' : ''} shape-${tile.shape || 'circle'}`}
                     style={{
                       left: `${tile.x}%`,
-                      top: `${tile.y}%`
+                      top: `${tile.y}%`,
+                      width: `${tile.size || 80}px`,
+                      height: `${tile.size || 80}px`
                     }}
                     onClick={(e) => {
                       e.stopPropagation()
@@ -759,6 +787,29 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                         onChange={(e) => updateTileLabel(selectedTile, e.target.value)}
                         placeholder="Tile label"
                       />
+                    </div>
+                    <div className="input-group">
+                      <label>Size: {gameState.customMap.tiles.find(t => t.id === selectedTile)?.size || 80}px</label>
+                      <input
+                        type="range"
+                        min="40"
+                        max="200"
+                        value={gameState.customMap.tiles.find(t => t.id === selectedTile)?.size || 80}
+                        onChange={(e) => updateTileSize(selectedTile, parseInt(e.target.value))}
+                      />
+                    </div>
+                    <div className="input-group">
+                      <label>Shape:</label>
+                      <select
+                        value={gameState.customMap.tiles.find(t => t.id === selectedTile)?.shape || 'circle'}
+                        onChange={(e) => updateTileShape(selectedTile, e.target.value)}
+                      >
+                        <option value="circle">● Circle</option>
+                        <option value="square">■ Square</option>
+                        <option value="diamond">◆ Diamond</option>
+                        <option value="hexagon">⬡ Hexagon</option>
+                        <option value="star">★ Star</option>
+                      </select>
                     </div>
                     <button
                       className="danger-button"
