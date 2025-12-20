@@ -143,6 +143,45 @@
   gap: 1rem;
 }
 
+.player-avatar-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.player-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.player-avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(108, 99, 255, 0.5);
+}
+
+.avatar-edit {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: var(--bg-dark);
+  border-radius: var(--border-radius);
+  border: 2px solid var(--primary-color);
+}
+
+.avatar-edit input {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--bg-light);
+  border: 1px solid var(--bg-medium);
+  border-radius: 4px;
+  color: var(--text-primary);
+}
+
 .player-info {
   display: flex;
   justify-content: space-between;

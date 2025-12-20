@@ -6,9 +6,11 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   const [gmMode, setGmMode] = useState('setup')
 
   const [newPlayerName, setNewPlayerName] = useState('')
+  const [newPlayerAvatar, setNewPlayerAvatar] = useState('')
   const [newEventTitle, setNewEventTitle] = useState('')
   const [newEventDescription, setNewEventDescription] = useState('')
   const [editingPlayer, setEditingPlayer] = useState(null)
+  const [editingPlayerAvatar, setEditingPlayerAvatar] = useState(null)
   const [selectedPlayer, setSelectedPlayer] = useState(null)
   const [newItemName, setNewItemName] = useState('')
 
@@ -48,6 +50,7 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
           {
             id: Date.now(),
             name: newPlayerName,
+            avatar: newPlayerAvatar.trim() || null,
             score: 0,
             status: 'active',
             color: getRandomColor(),
@@ -61,6 +64,7 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
         ]
       })
       setNewPlayerName('')
+      setNewPlayerAvatar('')
     }
   }
 
@@ -89,6 +93,16 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
       )
     })
     setEditingPlayer(null)
+  }
+
+  const updatePlayerAvatar = (playerId, avatarUrl) => {
+    setGameState({
+      ...gameState,
+      players: gameState.players.map(p =>
+        p.id === playerId ? { ...p, avatar: avatarUrl.trim() || null } : p
+      )
+    })
+    setEditingPlayerAvatar(null)
   }
 
   const updatePlayerStatus = (playerId, status) => {
@@ -1642,12 +1656,31 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               placeholder="Enter player name"
               onKeyPress={(e) => e.key === 'Enter' && addPlayer()}
             />
+            <input
+              type="text"
+              value={newPlayerAvatar}
+              onChange={(e) => setNewPlayerAvatar(e.target.value)}
+              placeholder="Avatar image URL (optional)"
+              onKeyPress={(e) => e.key === 'Enter' && addPlayer()}
+            />
             <button onClick={addPlayer}>Add Player</button>
           </div>
 
           <div className="players-list">
             {gameState.players.map(player => (
               <div key={player.id} className="player-card" style={{ borderColor: player.color }}>
+                {player.avatar && (
+                  <div className="player-avatar-container">
+                    <img
+                      src={player.avatar}
+                      alt={player.name}
+                      className="player-avatar"
+                      onClick={() => setEditingPlayerAvatar(player.id)}
+                      title="Click to edit avatar"
+                    />
+                  </div>
+                )}
+
                 <div className="player-info">
                   {editingPlayer === player.id ? (
                     <input
@@ -1664,6 +1697,19 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                     {player.status}
                   </span>
                 </div>
+
+                {editingPlayerAvatar === player.id && (
+                  <div className="avatar-edit">
+                    <input
+                      type="text"
+                      defaultValue={player.avatar || ''}
+                      placeholder="Avatar URL"
+                      onBlur={(e) => updatePlayerAvatar(player.id, e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && updatePlayerAvatar(player.id, e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                )}
 
                 <div className="player-score">
                   <button onClick={() => updatePlayerScore(player.id, -1)}>-1</button>

@@ -169,10 +169,18 @@ export default function DisplayView({ onBack }) {
                           <div
                             key={player.id}
                             className="player-marker"
-                            style={{ backgroundColor: player.color }}
+                            style={{ backgroundColor: player.avatar ? 'transparent' : player.color }}
                             title={player.name}
                           >
-                            {player.name.charAt(0)}
+                            {player.avatar ? (
+                              <img
+                                src={player.avatar}
+                                alt={player.name}
+                                className="player-marker-avatar"
+                              />
+                            ) : (
+                              player.name.charAt(0)
+                            )}
                           </div>
                         ))}
                       </div>
@@ -203,10 +211,18 @@ export default function DisplayView({ onBack }) {
                           <div
                             key={player.id}
                             className="player-marker"
-                            style={{ backgroundColor: player.color }}
+                            style={{ backgroundColor: player.avatar ? 'transparent' : player.color }}
                             title={player.name}
                           >
-                            {player.name.charAt(0)}
+                            {player.avatar ? (
+                              <img
+                                src={player.avatar}
+                                alt={player.name}
+                                className="player-marker-avatar"
+                              />
+                            ) : (
+                              player.name.charAt(0)
+                            )}
                           </div>
                         ))}
                       </div>
