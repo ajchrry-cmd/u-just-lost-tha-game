@@ -14,11 +14,45 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  flex-wrap: wrap;
 }
 
 .gm-header h1 {
   font-size: 1.8rem;
   color: var(--primary-color);
+}
+
+/* Mode Switcher */
+.gm-mode-switcher {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+  background: var(--bg-dark);
+  padding: 0.4rem;
+  border-radius: var(--border-radius);
+}
+
+.gm-mode-switcher .mode-button {
+  padding: 0.6rem 1.5rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.gm-mode-switcher .mode-button:hover {
+  background: var(--bg-medium);
+  color: var(--text-primary);
+}
+
+.gm-mode-switcher .mode-button.active {
+  background: var(--primary-color);
+  color: white;
+  box-shadow: 0 2px 8px rgba(108, 99, 255, 0.4);
 }
 
 .gm-content {

@@ -2,6 +2,9 @@ import { useState } from 'react'
 import './GameMaster.css'
 
 export default function GameMaster({ gameState, setGameState, onBack }) {
+  // GM Mode: 'setup' or 'playing'
+  const [gmMode, setGmMode] = useState('setup')
+
   const [newPlayerName, setNewPlayerName] = useState('')
   const [newEventTitle, setNewEventTitle] = useState('')
   const [newEventDescription, setNewEventDescription] = useState('')
@@ -867,10 +870,29 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
       <header className="gm-header">
         <button className="back-button" onClick={onBack}>← Back</button>
         <h1>🎯 Game Master Control</h1>
+
+        {/* Mode Switcher */}
+        <div className="gm-mode-switcher">
+          <button
+            className={`mode-button ${gmMode === 'setup' ? 'active' : ''}`}
+            onClick={() => setGmMode('setup')}
+          >
+            🛠️ Setup Mode
+          </button>
+          <button
+            className={`mode-button ${gmMode === 'playing' ? 'active' : ''}`}
+            onClick={() => setGmMode('playing')}
+          >
+            🎮 Playing Mode
+          </button>
+        </div>
       </header>
 
       <div className="gm-content">
-        <section className="section game-settings">
+        {/* SETUP MODE */}
+        {gmMode === 'setup' && (
+          <>
+            <section className="section game-settings">
           <h2>⚙️ Game Settings</h2>
           <div className="input-group">
             <label>Game Title:</label>
@@ -1516,7 +1538,12 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
             <p className="hint">Grid mode uses the classic 5x5 grid layout</p>
           )}
         </section>
+          </>
+        )}
 
+        {/* PLAYING MODE */}
+        {gmMode === 'playing' && (
+          <>
         <section className="section player-management">
           <div className="section-header">
             <h2>👥 Players ({gameState.players.length})</h2>
@@ -1734,6 +1761,8 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
             </button>
           </div>
         </section>
+          </>
+        )}
       </div>
     </div>
   )
