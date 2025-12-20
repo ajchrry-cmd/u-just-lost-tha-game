@@ -428,6 +428,140 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     })
   }
 
+  // Example Map Templates
+  const exampleMapTemplates = [
+    {
+      id: 'tribal-council',
+      name: '🔥 Tribal Council Circle',
+      description: '12 seats in a circle',
+      tiles: [
+        { id: 1, x: 50, y: 10, size: 40, shape: 'circle', color: '#FF6B6B', label: '1', rotation: 0 },
+        { id: 2, x: 75, y: 18, size: 40, shape: 'circle', color: '#FF6B6B', label: '2', rotation: 0 },
+        { id: 3, x: 90, y: 35, size: 40, shape: 'circle', color: '#FF6B6B', label: '3', rotation: 0 },
+        { id: 4, x: 90, y: 60, size: 40, shape: 'circle', color: '#FF6B6B', label: '4', rotation: 0 },
+        { id: 5, x: 75, y: 77, size: 40, shape: 'circle', color: '#FF6B6B', label: '5', rotation: 0 },
+        { id: 6, x: 50, y: 85, size: 40, shape: 'circle', color: '#FF6B6B', label: '6', rotation: 0 },
+        { id: 7, x: 25, y: 77, size: 40, shape: 'circle', color: '#FF6B6B', label: '7', rotation: 0 },
+        { id: 8, x: 10, y: 60, size: 40, shape: 'circle', color: '#FF6B6B', label: '8', rotation: 0 },
+        { id: 9, x: 10, y: 35, size: 40, shape: 'circle', color: '#FF6B6B', label: '9', rotation: 0 },
+        { id: 10, x: 25, y: 18, size: 40, shape: 'circle', color: '#FF6B6B', label: '10', rotation: 0 },
+        { id: 11, x: 50, y: 47, size: 50, shape: 'star', color: '#FFD700', label: '🔥', rotation: 0 }
+      ]
+    },
+    {
+      id: 'linear-race',
+      name: '🏁 Linear Race Track',
+      description: '20-space path to finish',
+      tiles: Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        x: 10 + (i % 10) * 9,
+        y: i < 10 ? 25 : 65,
+        size: 35,
+        shape: i === 0 ? 'star' : i === 19 ? 'hexagon' : 'circle',
+        color: i === 0 ? '#4ECDC4' : i === 19 ? '#FFD700' : '#98D8C8',
+        label: String(i + 1),
+        rotation: 0,
+        connections: i < 19 ? [i + 2] : []
+      }))
+    },
+    {
+      id: 'island-hopping',
+      name: '🏝️ Island Hopping',
+      description: '8 islands, multiple paths',
+      tiles: [
+        { id: 1, x: 15, y: 20, size: 50, shape: 'hexagon', color: '#4ECDC4', label: 'Start', rotation: 0, connections: [2, 3] },
+        { id: 2, x: 35, y: 15, size: 45, shape: 'circle', color: '#98D8C8', label: '2', rotation: 0, connections: [4] },
+        { id: 3, x: 35, y: 45, size: 45, shape: 'circle', color: '#98D8C8', label: '3', rotation: 0, connections: [4, 5] },
+        { id: 4, x: 55, y: 20, size: 45, shape: 'circle', color: '#98D8C8', label: '4', rotation: 0, connections: [6] },
+        { id: 5, x: 55, y: 50, size: 45, shape: 'circle', color: '#98D8C8', label: '5', rotation: 0, connections: [6, 7] },
+        { id: 6, x: 75, y: 25, size: 45, shape: 'circle', color: '#98D8C8', label: '6', rotation: 0, connections: [8] },
+        { id: 7, x: 75, y: 55, size: 45, shape: 'circle', color: '#98D8C8', label: '7', rotation: 0, connections: [8] },
+        { id: 8, x: 90, y: 40, size: 50, shape: 'star', color: '#FFD700', label: 'End', rotation: 0 }
+      ]
+    },
+    {
+      id: 'hub-spoke',
+      name: '⭐ Hub and Spokes',
+      description: 'Central hub, 6 paths',
+      tiles: [
+        { id: 1, x: 50, y: 47, size: 60, shape: 'hexagon', color: '#FFD700', label: 'Hub', rotation: 0, connections: [2, 3, 4, 5, 6, 7] },
+        { id: 2, x: 50, y: 10, size: 45, shape: 'circle', color: '#FF6B6B', label: 'N', rotation: 0 },
+        { id: 3, x: 80, y: 22, size: 45, shape: 'circle', color: '#4ECDC4', label: 'NE', rotation: 0 },
+        { id: 4, x: 80, y: 72, size: 45, shape: 'circle', color: '#98D8C8', label: 'SE', rotation: 0 },
+        { id: 5, x: 50, y: 84, size: 45, shape: 'circle', color: '#F7DC6F', label: 'S', rotation: 0 },
+        { id: 6, x: 20, y: 72, size: 45, shape: 'circle', color: '#BB8FCE', label: 'SW', rotation: 0 },
+        { id: 7, x: 20, y: 22, size: 45, shape: 'circle', color: '#85C1E2', label: 'NW', rotation: 0 }
+      ]
+    },
+    {
+      id: 'challenge-arena',
+      name: '⚔️ Challenge Arena',
+      description: '4 teams, central zone',
+      tiles: [
+        { id: 1, x: 15, y: 15, size: 50, shape: 'hexagon', color: '#FF6B6B', label: 'Red', rotation: 0, connections: [5] },
+        { id: 2, x: 85, y: 15, size: 50, shape: 'hexagon', color: '#4ECDC4', label: 'Blue', rotation: 0, connections: [5] },
+        { id: 3, x: 15, y: 75, size: 50, shape: 'hexagon', color: '#F7DC6F', label: 'Yellow', rotation: 0, connections: [5] },
+        { id: 4, x: 85, y: 75, size: 50, shape: 'hexagon', color: '#98D8C8', label: 'Green', rotation: 0, connections: [5] },
+        { id: 5, x: 50, y: 45, size: 70, shape: 'star', color: '#FFD700', label: 'Arena', rotation: 0 }
+      ]
+    },
+    {
+      id: 'spiral-path',
+      name: '🌀 Spiral Journey',
+      description: '16 spaces to center',
+      tiles: [
+        { id: 1, x: 10, y: 10, size: 35, shape: 'circle', color: '#4ECDC4', label: '1', rotation: 0, connections: [2] },
+        { id: 2, x: 30, y: 10, size: 35, shape: 'circle', color: '#98D8C8', label: '2', rotation: 0, connections: [3] },
+        { id: 3, x: 50, y: 10, size: 35, shape: 'circle', color: '#98D8C8', label: '3', rotation: 0, connections: [4] },
+        { id: 4, x: 70, y: 10, size: 35, shape: 'circle', color: '#98D8C8', label: '4', rotation: 0, connections: [5] },
+        { id: 5, x: 90, y: 10, size: 35, shape: 'circle', color: '#98D8C8', label: '5', rotation: 0, connections: [6] },
+        { id: 6, x: 90, y: 30, size: 35, shape: 'circle', color: '#98D8C8', label: '6', rotation: 0, connections: [7] },
+        { id: 7, x: 90, y: 50, size: 35, shape: 'circle', color: '#98D8C8', label: '7', rotation: 0, connections: [8] },
+        { id: 8, x: 90, y: 70, size: 35, shape: 'circle', color: '#98D8C8', label: '8', rotation: 0, connections: [9] },
+        { id: 9, x: 90, y: 90, size: 35, shape: 'circle', color: '#98D8C8', label: '9', rotation: 0, connections: [10] },
+        { id: 10, x: 70, y: 90, size: 35, shape: 'circle', color: '#98D8C8', label: '10', rotation: 0, connections: [11] },
+        { id: 11, x: 50, y: 90, size: 35, shape: 'circle', color: '#98D8C8', label: '11', rotation: 0, connections: [12] },
+        { id: 12, x: 30, y: 90, size: 35, shape: 'circle', color: '#98D8C8', label: '12', rotation: 0, connections: [13] },
+        { id: 13, x: 10, y: 90, size: 35, shape: 'circle', color: '#98D8C8', label: '13', rotation: 0, connections: [14] },
+        { id: 14, x: 10, y: 70, size: 35, shape: 'circle', color: '#98D8C8', label: '14', rotation: 0, connections: [15] },
+        { id: 15, x: 10, y: 50, size: 35, shape: 'circle', color: '#98D8C8', label: '15', rotation: 0, connections: [16] },
+        { id: 16, x: 10, y: 30, size: 35, shape: 'circle', color: '#98D8C8', label: '16', rotation: 0, connections: [17] },
+        { id: 17, x: 50, y: 50, size: 45, shape: 'star', color: '#FFD700', label: '🏆', rotation: 0 }
+      ]
+    },
+    {
+      id: 'grid-board',
+      name: '📐 Classic 4x4 Board',
+      description: '16-space grid layout',
+      tiles: Array.from({ length: 16 }, (_, i) => ({
+        id: i + 1,
+        x: 15 + (i % 4) * 25,
+        y: 15 + Math.floor(i / 4) * 25,
+        size: 40,
+        shape: i === 0 ? 'star' : i === 15 ? 'hexagon' : 'square',
+        color: i === 0 ? '#4ECDC4' : i === 15 ? '#FFD700' : (i % 2 === Math.floor(i / 4) % 2 ? '#98D8C8' : '#85C1E2'),
+        label: String(i + 1),
+        rotation: 45
+      }))
+    },
+    {
+      id: 'crossroads',
+      name: '✖️ The Crossroads',
+      description: 'Intersecting paths',
+      tiles: [
+        { id: 1, x: 10, y: 47, size: 45, shape: 'circle', color: '#4ECDC4', label: 'W', rotation: 0, connections: [5] },
+        { id: 2, x: 90, y: 47, size: 45, shape: 'circle', color: '#4ECDC4', label: 'E', rotation: 0, connections: [5] },
+        { id: 3, x: 50, y: 10, size: 45, shape: 'circle', color: '#4ECDC4', label: 'N', rotation: 0, connections: [5] },
+        { id: 4, x: 50, y: 84, size: 45, shape: 'circle', color: '#4ECDC4', label: 'S', rotation: 0, connections: [5] },
+        { id: 5, x: 50, y: 47, size: 60, shape: 'star', color: '#FFD700', label: 'Center', rotation: 0, connections: [6, 7, 8, 9] },
+        { id: 6, x: 25, y: 25, size: 40, shape: 'hexagon', color: '#FF6B6B', label: 'NW', rotation: 0 },
+        { id: 7, x: 75, y: 25, size: 40, shape: 'hexagon', color: '#98D8C8', label: 'NE', rotation: 0 },
+        { id: 8, x: 75, y: 69, size: 40, shape: 'hexagon', color: '#F7DC6F', label: 'SE', rotation: 0 },
+        { id: 9, x: 25, y: 69, size: 40, shape: 'hexagon', color: '#BB8FCE', label: 'SW', rotation: 0 }
+      ]
+    }
+  ]
+
   const clearShop = () => {
     if (confirm('Clear all shop items?')) {
       setGameState({
@@ -883,6 +1017,24 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     const templates = JSON.parse(localStorage.getItem('mapTemplates') || '[]')
     const updatedTemplates = templates.filter(t => t.id !== templateId)
     localStorage.setItem('mapTemplates', JSON.stringify(updatedTemplates))
+  }
+
+  const loadExampleTemplate = (templateId) => {
+    const template = exampleMapTemplates.find(t => t.id === templateId)
+
+    if (template) {
+      setGameState({
+        ...gameState,
+        customMap: {
+          tiles: template.tiles.map(tile => ({
+            ...tile,
+            id: Date.now() + Math.random() // Generate unique IDs
+          })),
+          backgroundImage: template.backgroundImage || ''
+        }
+      })
+      setSelectedTiles([])
+    }
   }
 
   const clearMap = () => {
@@ -1595,9 +1747,25 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                     )}
                   </div>
 
-                  {/* Templates */}
+                  {/* Example Templates */}
                   <div className="sidebar-section">
-                    <h4 className="sidebar-title">📚 Templates</h4>
+                    <h4 className="sidebar-title">✨ Example Maps</h4>
+                    <div className="template-list-compact">
+                      {exampleMapTemplates.map(template => (
+                        <div key={template.id} className="template-item-compact example-template">
+                          <div className="template-info">
+                            <span className="template-name">{template.name}</span>
+                            <span className="template-desc">{template.description}</span>
+                          </div>
+                          <button onClick={() => loadExampleTemplate(template.id)} className="icon-btn" title="Load">📂</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Saved Templates */}
+                  <div className="sidebar-section">
+                    <h4 className="sidebar-title">📚 Saved Templates</h4>
                     <div className="template-list-compact">
                       {JSON.parse(localStorage.getItem('mapTemplates') || '[]').map(template => (
                         <div key={template.id} className="template-item-compact">
@@ -1607,7 +1775,7 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                         </div>
                       ))}
                       {JSON.parse(localStorage.getItem('mapTemplates') || '[]').length === 0 && (
-                        <p className="sidebar-hint">No templates</p>
+                        <p className="sidebar-hint">No saved templates</p>
                       )}
                     </div>
                   </div>

@@ -1480,6 +1480,31 @@
   white-space: nowrap;
 }
 
+.template-item-compact.example-template {
+  flex-direction: row;
+  align-items: center;
+  padding: 0.5rem;
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.15), rgba(78, 205, 196, 0.15));
+  border: 1px solid rgba(108, 99, 255, 0.3);
+}
+
+.template-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.template-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .icon-btn {
   padding: 0.25rem 0.5rem;
   background: var(--bg-light);
