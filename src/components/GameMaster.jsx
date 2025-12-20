@@ -1844,6 +1844,14 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               <span className="scene-name">Game View</span>
             </button>
 
+            <button
+              className={`scene-card ${gameState.currentScene?.type === 'shop' && !gameState.currentScene?.id ? 'active' : ''}`}
+              onClick={showShop}
+            >
+              <span className="scene-icon">🛒</span>
+              <span className="scene-name">Shop</span>
+            </button>
+
             {gameState.customScenes?.filter(s => s.type === 'shop').map(scene => (
               <button
                 key={scene.id}
