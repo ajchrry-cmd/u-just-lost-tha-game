@@ -1893,4 +1893,84 @@
   .wheel-actions button {
     min-width: 100%;
   }
+
+  /* Map Editor Mobile Responsiveness */
+  .map-editor-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .toolbar-group {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding: 0.5rem;
+  }
+
+  .toolbar-label {
+    width: 100%;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+  }
+
+  .toolbar-stats {
+    margin-left: 0;
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .map-editor-layout {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .map-editor-sidebar {
+    width: 100%;
+    max-height: none;
+    order: 2;
+  }
+
+  .map-editor-canvas-area {
+    order: 1;
+    margin-bottom: 1rem;
+  }
+
+  .map-canvas {
+    height: 300px;
+  }
+
+  .tile-editor-controls {
+    flex-direction: column;
+  }
+
+  .tile-editor-controls .input-group {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .quick-shape-picker {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .map-mode-toggle {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mode-button {
+    width: 100%;
+  }
+
+  .sidebar-section {
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .tiles-list {
+    max-height: none;
+  }
+
+  .shape-templates {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
