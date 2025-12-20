@@ -576,6 +576,15 @@
   text-align: center;
 }
 
+.shop-item-description {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  text-align: center;
+  font-style: italic;
+  max-width: 300px;
+  line-height: 1.4;
+}
+
 .shop-item-price {
   font-size: 2rem;
   color: var(--warning-color);

@@ -288,6 +288,7 @@ export default function DisplayView({ onBack }) {
         {sceneData.items?.map(item => (
           <div key={item.id} className="shop-item-display">
             <div className="shop-item-name">{item.name}</div>
+            {item.description && <div className="shop-item-description">{item.description}</div>}
             <div className="shop-item-price">💰 {item.price}</div>
           </div>
         ))}

@@ -376,6 +376,53 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     }
   }
 
+  // Standard shop items library
+  const standardShopItems = [
+    { name: '🛡️ Immunity Idol', price: 150, description: 'Protects you from one elimination' },
+    { name: '🗳️ Extra Vote', price: 100, description: 'Cast an additional vote at tribal council' },
+    { name: '🔍 Spy Glass', price: 80, description: 'Learn who another player is voting for' },
+    { name: '⚔️ Vote Steal', price: 120, description: 'Steal another player\'s vote' },
+    { name: '🚫 Vote Blocker', price: 90, description: 'Prevent one player from voting' },
+    { name: '🎯 Nullifier', price: 130, description: 'Cancel someone\'s hidden immunity idol' },
+    { name: '💎 Legacy Advantage', price: 110, description: 'Pass immunity to another player if eliminated' },
+    { name: '🎲 Shot in the Dark', price: 60, description: '50% chance of safety, lose your vote' },
+    { name: '👁️ Knowledge is Power', price: 95, description: 'Steal an advantage from another player' },
+    { name: '🔐 Safety Shield', price: 70, description: 'One-time protection from being targeted' },
+    { name: '🎪 Challenge Advantage', price: 85, description: 'Start next challenge with a head start' },
+    { name: '🗝️ Secret Key', price: 50, description: 'Unlock a hidden advantage clue' },
+    { name: '⏰ Time Warp', price: 75, description: 'Rewind and change your last decision' },
+    { name: '🎭 Disguise Kit', price: 65, description: 'Vote anonymously at next tribal council' },
+    { name: '💰 Bank Heist', price: 45, description: 'Steal 50 gold from another player' },
+    { name: '🔮 Fortune Teller', price: 55, description: 'Preview the next challenge type' },
+    { name: '⚡ Power Boost', price: 40, description: 'Gain +20 power for next challenge' },
+    { name: '🎁 Mystery Box', price: 30, description: 'Random item or advantage' },
+    { name: '🏃 Quick Feet', price: 35, description: 'Move twice in one turn' },
+    { name: '🧲 Magnet', price: 50, description: 'Steal a random item from another player' }
+  ]
+
+  const addStandardShopItems = () => {
+    const newItems = standardShopItems.map((item, index) => ({
+      id: Date.now() + index,
+      name: item.name,
+      price: item.price,
+      description: item.description
+    }))
+
+    setGameState({
+      ...gameState,
+      shopItems: [...(gameState.shopItems || []), ...newItems]
+    })
+  }
+
+  const clearShop = () => {
+    if (confirm('Clear all shop items?')) {
+      setGameState({
+        ...gameState,
+        shopItems: []
+      })
+    }
+  }
+
   // Custom map functions
   const toggleMapMode = () => {
     setGameState({
@@ -984,6 +1031,23 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
           {/* Shop Management */}
           <div className="scene-editor shop-editor">
             <h3>🛒 Shop Items</h3>
+
+            <div className="shop-quick-actions">
+              <button
+                className="secondary-button"
+                onClick={addStandardShopItems}
+                title="Add 20 pre-made items with unique icons"
+              >
+                ✨ Add Standard Items
+              </button>
+              <button
+                className="danger-button small"
+                onClick={clearShop}
+              >
+                🗑️ Clear All
+              </button>
+            </div>
+
             <div className="add-shop-item">
               <input
                 type="text"
@@ -1003,8 +1067,11 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
             </div>
             <div className="shop-items-list">
               {gameState.shopItems?.map(item => (
-                <div key={item.id} className="shop-item-chip">
-                  <span>{item.name} - 💰{item.price}</span>
+                <div key={item.id} className="shop-item-chip" title={item.description || ''}>
+                  <span className="shop-item-content">
+                    <span className="shop-item-name-price">{item.name} - 💰{item.price}</span>
+                    {item.description && <span className="shop-item-desc">{item.description}</span>}
+                  </span>
                   <button onClick={() => removeShopItem(item.id)}>✕</button>
                 </div>
               ))}
