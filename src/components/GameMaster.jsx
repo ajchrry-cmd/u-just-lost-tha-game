@@ -359,6 +359,23 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     })
   }
 
+  const activateScene = (type) => {
+    setGameState({
+      ...gameState,
+      currentScene: { type, data: {} }
+    })
+  }
+
+  const activateSceneById = (sceneId) => {
+    const scene = gameState.customScenes?.find(s => s.id === sceneId)
+    if (scene) {
+      setGameState({
+        ...gameState,
+        currentScene: { id: sceneId, type: scene.type, data: scene.data }
+      })
+    }
+  }
+
   // Custom map functions
   const toggleMapMode = () => {
     setGameState({
@@ -1701,65 +1718,91 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
           </>
         )}
 
-        <section className="section event-management">
-          <h2>📢 Current Event</h2>
+        <section className="section scene-switcher">
+          <h2>🎬 Scene Control</h2>
+          <p className="scene-current">Current Scene: <strong>{gameState.currentScene?.type || 'game'}</strong></p>
 
-          {gameState.currentEvent ? (
-            <div className="current-event">
-              <h3>{gameState.currentEvent.title}</h3>
-              <p>{gameState.currentEvent.description}</p>
-              <button className="danger-button" onClick={clearEvent}>Clear Event</button>
-            </div>
-          ) : (
-            <div className="add-event">
-              <input
-                type="text"
-                value={newEventTitle}
-                onChange={(e) => setNewEventTitle(e.target.value)}
-                placeholder="Event title"
-              />
-              <textarea
-                value={newEventDescription}
-                onChange={(e) => setNewEventDescription(e.target.value)}
-                placeholder="Event description (optional)"
-                rows="3"
-              />
-              <button onClick={setCurrentEvent}>Set Event</button>
-            </div>
+          <div className="scene-grid">
+            <button
+              className={`scene-card ${gameState.currentScene?.type === 'game' ? 'active' : ''}`}
+              onClick={() => activateScene('game')}
+            >
+              <span className="scene-icon">🎮</span>
+              <span className="scene-name">Game View</span>
+            </button>
+
+            {gameState.customScenes?.filter(s => s.type === 'shop').map(scene => (
+              <button
+                key={scene.id}
+                className={`scene-card ${gameState.currentScene?.id === scene.id ? 'active' : ''}`}
+                onClick={() => activateSceneById(scene.id)}
+              >
+                <span className="scene-icon">🛒</span>
+                <span className="scene-name">{scene.name || 'Shop'}</span>
+              </button>
+            ))}
+
+            {gameState.customScenes?.filter(s => s.type === 'image').map(scene => (
+              <button
+                key={scene.id}
+                className={`scene-card ${gameState.currentScene?.id === scene.id ? 'active' : ''}`}
+                onClick={() => activateSceneById(scene.id)}
+              >
+                <span className="scene-icon">🖼️</span>
+                <span className="scene-name">{scene.name || 'Image'}</span>
+              </button>
+            ))}
+
+            {gameState.customScenes?.filter(s => s.type === 'text').map(scene => (
+              <button
+                key={scene.id}
+                className={`scene-card ${gameState.currentScene?.id === scene.id ? 'active' : ''}`}
+                onClick={() => activateSceneById(scene.id)}
+              >
+                <span className="scene-icon">📝</span>
+                <span className="scene-name">{scene.name || 'Text'}</span>
+              </button>
+            ))}
+          </div>
+
+          {!gameState.customScenes || gameState.customScenes.length === 0 && (
+            <p className="hint">No custom scenes yet. Create scenes in Setup Mode.</p>
           )}
         </section>
 
-        <section className="section quick-actions">
-          <h2>⚡ Quick Actions</h2>
-          <div className="action-buttons">
-            <button onClick={() => {
-              const player = gameState.players[Math.floor(Math.random() * gameState.players.length)]
-              if (player) {
-                setGameState({
-                  ...gameState,
-                  currentEvent: {
-                    title: `${player.name}'s Turn!`,
-                    description: 'Make your choice!',
-                    timestamp: Date.now()
-                  }
-                })
-              }
-            }}>
-              🎯 Random Player
-            </button>
-            <button onClick={() => {
-              setGameState({
-                ...gameState,
-                currentEvent: {
-                  title: '⏸️ Game Paused',
-                  description: 'Take a break!',
-                  timestamp: Date.now()
-                }
-              })
-            }}>
-              ⏸️ Pause Game
-            </button>
+        <section className="section wheel-selector">
+          <h2>🎡 Spinning Wheels</h2>
+
+          <div className="wheel-grid">
+            {gameState.customScenes?.filter(s => s.type === 'wheel').map(scene => (
+              <div key={scene.id} className="wheel-card">
+                <div className="wheel-info">
+                  <h3>{scene.name || 'Wheel'}</h3>
+                  <p className="wheel-outcomes">{scene.data?.outcomes?.length || 0} outcomes</p>
+                </div>
+                <div className="wheel-actions">
+                  <button
+                    className={`primary-button ${gameState.currentScene?.id === scene.id ? 'active' : ''}`}
+                    onClick={() => activateSceneById(scene.id)}
+                  >
+                    {gameState.currentScene?.id === scene.id ? '✓ Active' : 'Activate'}
+                  </button>
+                  {gameState.currentScene?.id === scene.id && (
+                    <button
+                      className="spin-trigger-button"
+                      onClick={() => triggerWheelSpin()}
+                    >
+                      🎡 Spin!
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
+
+          {(!gameState.customScenes?.filter(s => s.type === 'wheel').length) && (
+            <p className="hint">No spinning wheels yet. Create wheels in Setup Mode.</p>
+          )}
         </section>
           </>
         )}

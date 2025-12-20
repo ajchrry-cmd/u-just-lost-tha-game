@@ -1577,6 +1577,185 @@
   transform-origin: center center;
 }
 
+/* Playing Mode: Scene Switcher */
+.scene-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.scene-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  background: var(--bg-medium);
+  border: 2px solid var(--bg-light);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 120px;
+}
+
+.scene-card:hover {
+  background: var(--bg-dark);
+  border-color: var(--primary-color);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+}
+
+.scene-card.active {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-color: var(--primary-color);
+  box-shadow: 0 0 20px rgba(108, 99, 255, 0.5);
+  animation: sceneActive 2s ease-in-out infinite;
+}
+
+@keyframes sceneActive {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(108, 99, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(108, 99, 255, 0.7);
+  }
+}
+
+.scene-card .scene-icon {
+  font-size: 2.5rem;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.scene-card .scene-name {
+  font-weight: bold;
+  font-size: 1rem;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.scene-card.active .scene-name {
+  color: white;
+}
+
+/* Playing Mode: Wheel Selector */
+.wheel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.wheel-card {
+  background: var(--bg-medium);
+  border: 2px solid var(--bg-light);
+  border-radius: var(--border-radius);
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.wheel-card:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.wheel-info {
+  margin-bottom: 1rem;
+}
+
+.wheel-info h3 {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.wheel-outcomes {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.wheel-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.wheel-actions button {
+  flex: 1;
+  min-width: 100px;
+  padding: 0.75rem 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.wheel-actions .primary-button {
+  background: var(--success-color);
+  color: white;
+  border: 2px solid var(--success-color);
+}
+
+.wheel-actions .primary-button:hover {
+  background: #40B353;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+}
+
+.wheel-actions .primary-button.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 15px rgba(108, 99, 255, 0.5);
+  animation: wheelActive 2s ease-in-out infinite;
+}
+
+@keyframes wheelActive {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(108, 99, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(108, 99, 255, 0.7);
+  }
+}
+
+.spin-trigger-button {
+  background: linear-gradient(135deg, var(--secondary-color), #FF8A00);
+  color: white;
+  font-size: 1.1rem;
+  animation: spinPulse 1.5s ease-in-out infinite;
+}
+
+.spin-trigger-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(255, 107, 107, 0.5);
+}
+
+.spin-trigger-button:active {
+  transform: scale(0.98);
+}
+
+@keyframes spinPulse {
+  0%, 100% {
+    box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.6);
+  }
+}
+
+.hint {
+  color: var(--text-secondary);
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+  background: var(--bg-medium);
+  border-radius: var(--border-radius);
+  margin-top: 1rem;
+}
+
 @media (max-width: 768px) {
   .gm-content {
     padding: 1rem;
@@ -1609,5 +1788,21 @@
   .horizontal-controls {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .scene-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .wheel-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wheel-actions {
+    flex-direction: column;
+  }
+
+  .wheel-actions button {
+    min-width: 100%;
   }
 }
