@@ -41,6 +41,121 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   const [contextMenu, setContextMenu] = useState(null)
   const [tileFilter, setTileFilter] = useState('')
 
+  // Theme presets
+  const themePresets = {
+    default: {
+      name: '🌟 Default',
+      colors: {
+        primaryColor: '#6C63FF',
+        secondaryColor: '#FF6B6B',
+        successColor: '#51CF66',
+        warningColor: '#FFA94D',
+        dangerColor: '#FF6B6B',
+        bgDark: '#1A1A2E',
+        bgMedium: '#16213E',
+        bgLight: '#0F3460',
+        textPrimary: '#FFFFFF',
+        textSecondary: '#B8B8D1'
+      }
+    },
+    ocean: {
+      name: '🌊 Ocean',
+      colors: {
+        primaryColor: '#4A90E2',
+        secondaryColor: '#50E3C2',
+        successColor: '#7ED321',
+        warningColor: '#F5A623',
+        dangerColor: '#D0021B',
+        bgDark: '#0A1E3D',
+        bgMedium: '#1E3A5F',
+        bgLight: '#2A5283',
+        textPrimary: '#FFFFFF',
+        textSecondary: '#A5D8FF'
+      }
+    },
+    sunset: {
+      name: '🌅 Sunset',
+      colors: {
+        primaryColor: '#FF6B6B',
+        secondaryColor: '#FFD93D',
+        successColor: '#6BCF7F',
+        warningColor: '#FFA834',
+        dangerColor: '#E63946',
+        bgDark: '#2D1B2E',
+        bgMedium: '#4A2A3D',
+        bgLight: '#6B3F52',
+        textPrimary: '#FFF5E6',
+        textSecondary: '#FFD7C4'
+      }
+    },
+    forest: {
+      name: '🌲 Forest',
+      colors: {
+        primaryColor: '#52B788',
+        secondaryColor: '#95D5B2',
+        successColor: '#74C69D',
+        warningColor: '#F4A261',
+        dangerColor: '#E76F51',
+        bgDark: '#1B4332',
+        bgMedium: '#2D6A4F',
+        bgLight: '#40916C',
+        textPrimary: '#F1FAEE',
+        textSecondary: '#B7E4C7'
+      }
+    },
+    neon: {
+      name: '⚡ Neon',
+      colors: {
+        primaryColor: '#FF10F0',
+        secondaryColor: '#00F5FF',
+        successColor: '#39FF14',
+        warningColor: '#FFFF00',
+        dangerColor: '#FF073A',
+        bgDark: '#0D0221',
+        bgMedium: '#1A0F2E',
+        bgLight: '#2E1F47',
+        textPrimary: '#FFFFFF',
+        textSecondary: '#C77DFF'
+      }
+    },
+    royal: {
+      name: '👑 Royal',
+      colors: {
+        primaryColor: '#7B2CBF',
+        secondaryColor: '#C77DFF',
+        successColor: '#06D6A0',
+        warningColor: '#FFD60A',
+        dangerColor: '#EF476F',
+        bgDark: '#240046',
+        bgMedium: '#3C096C',
+        bgLight: '#5A189A',
+        textPrimary: '#FFFFFF',
+        textSecondary: '#E0AAFF'
+      }
+    }
+  }
+
+  const applyThemePreset = (presetKey) => {
+    const preset = themePresets[presetKey]
+    if (preset) {
+      setGameState({
+        ...gameState,
+        colorScheme: preset.colors,
+        theme: presetKey
+      })
+    }
+  }
+
+  const updateColor = (colorKey, value) => {
+    setGameState({
+      ...gameState,
+      colorScheme: {
+        ...gameState.colorScheme,
+        [colorKey]: value
+      }
+    })
+  }
+
   const addPlayer = () => {
     if (newPlayerName.trim()) {
       setGameState({
@@ -1143,6 +1258,171 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               onChange={(e) => updateGameTitle(e.target.value)}
               placeholder="Enter game title"
             />
+          </div>
+        </section>
+
+        <section className="section theme-customization">
+          <h2>🎨 Color Scheme</h2>
+
+          {/* Preset Themes */}
+          <div className="theme-presets">
+            <h3>Quick Themes</h3>
+            <div className="preset-buttons">
+              {Object.entries(themePresets).map(([key, preset]) => (
+                <button
+                  key={key}
+                  className={`preset-button ${gameState.theme === key ? 'active' : ''}`}
+                  onClick={() => applyThemePreset(key)}
+                  style={{
+                    background: `linear-gradient(135deg, ${preset.colors.primaryColor}, ${preset.colors.secondaryColor})`
+                  }}
+                >
+                  {preset.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Custom Colors */}
+          <div className="custom-colors">
+            <h3>Custom Colors</h3>
+            <div className="color-grid">
+              <div className="color-picker-group">
+                <label>Primary Color:</label>
+                <div className="color-input-wrapper">
+                  <input
+                    type="color"
+                    value={gameState.colorScheme?.primaryColor || '#6C63FF'}
+                    onChange={(e) => updateColor('primaryColor', e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    value={gameState.colorScheme?.primaryColor || '#6C63FF'}
+                    onChange={(e) => updateColor('primaryColor', e.target.value)}
+                    placeholder="#6C63FF"
+                  />
+                </div>
+              </div>
+
+              <div className="color-picker-group">
+                <label>Secondary Color:</label>
+                <div className="color-input-wrapper">
+                  <input
+                    type="color"
+                    value={gameState.colorScheme?.secondaryColor || '#FF6B6B'}
+                    onChange={(e) => updateColor('secondaryColor', e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    value={gameState.colorScheme?.secondaryColor || '#FF6B6B'}
+                    onChange={(e) => updateColor('secondaryColor', e.target.value)}
+                    placeholder="#FF6B6B"
+                  />
+                </div>
+              </div>
+
+              <div className="color-picker-group">
+                <label>Success Color:</label>
+                <div className="color-input-wrapper">
+                  <input
+                    type="color"
+                    value={gameState.colorScheme?.successColor || '#51CF66'}
+                    onChange={(e) => updateColor('successColor', e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    value={gameState.colorScheme?.successColor || '#51CF66'}
+                    onChange={(e) => updateColor('successColor', e.target.value)}
+                    placeholder="#51CF66"
+                  />
+                </div>
+              </div>
+
+              <div className="color-picker-group">
+                <label>Warning Color:</label>
+                <div className="color-input-wrapper">
+                  <input
+                    type="color"
+                    value={gameState.colorScheme?.warningColor || '#FFA94D'}
+                    onChange={(e) => updateColor('warningColor', e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    value={gameState.colorScheme?.warningColor || '#FFA94D'}
+                    onChange={(e) => updateColor('warningColor', e.target.value)}
+                    placeholder="#FFA94D"
+                  />
+                </div>
+              </div>
+
+              <div className="color-picker-group">
+                <label>Background Dark:</label>
+                <div className="color-input-wrapper">
+                  <input
+                    type="color"
+                    value={gameState.colorScheme?.bgDark || '#1A1A2E'}
+                    onChange={(e) => updateColor('bgDark', e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    value={gameState.colorScheme?.bgDark || '#1A1A2E'}
+                    onChange={(e) => updateColor('bgDark', e.target.value)}
+                    placeholder="#1A1A2E"
+                  />
+                </div>
+              </div>
+
+              <div className="color-picker-group">
+                <label>Background Medium:</label>
+                <div className="color-input-wrapper">
+                  <input
+                    type="color"
+                    value={gameState.colorScheme?.bgMedium || '#16213E'}
+                    onChange={(e) => updateColor('bgMedium', e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    value={gameState.colorScheme?.bgMedium || '#16213E'}
+                    onChange={(e) => updateColor('bgMedium', e.target.value)}
+                    placeholder="#16213E"
+                  />
+                </div>
+              </div>
+
+              <div className="color-picker-group">
+                <label>Background Light:</label>
+                <div className="color-input-wrapper">
+                  <input
+                    type="color"
+                    value={gameState.colorScheme?.bgLight || '#0F3460'}
+                    onChange={(e) => updateColor('bgLight', e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    value={gameState.colorScheme?.bgLight || '#0F3460'}
+                    onChange={(e) => updateColor('bgLight', e.target.value)}
+                    placeholder="#0F3460"
+                  />
+                </div>
+              </div>
+
+              <div className="color-picker-group">
+                <label>Text Primary:</label>
+                <div className="color-input-wrapper">
+                  <input
+                    type="color"
+                    value={gameState.colorScheme?.textPrimary || '#FFFFFF'}
+                    onChange={(e) => updateColor('textPrimary', e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    value={gameState.colorScheme?.textPrimary || '#FFFFFF'}
+                    onChange={(e) => updateColor('textPrimary', e.target.value)}
+                    placeholder="#FFFFFF"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 

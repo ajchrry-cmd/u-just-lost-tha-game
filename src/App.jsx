@@ -12,6 +12,18 @@ function App() {
       currentEvent: null,
       gameTitle: 'Epic Game Night',
       theme: 'default',
+      colorScheme: {
+        primaryColor: '#6C63FF',
+        secondaryColor: '#FF6B6B',
+        successColor: '#51CF66',
+        warningColor: '#FFA94D',
+        dangerColor: '#FF6B6B',
+        bgDark: '#1A1A2E',
+        bgMedium: '#16213E',
+        bgLight: '#0F3460',
+        textPrimary: '#FFFFFF',
+        textSecondary: '#B8B8D1'
+      },
       currentScene: {
         type: 'game', // 'game', 'shop', 'image', 'text', 'wheel'
         data: {}
@@ -35,6 +47,23 @@ function App() {
       }
     }
   })
+
+  // Apply color scheme to CSS variables
+  useEffect(() => {
+    if (gameState.colorScheme) {
+      const root = document.documentElement
+      root.style.setProperty('--primary-color', gameState.colorScheme.primaryColor)
+      root.style.setProperty('--secondary-color', gameState.colorScheme.secondaryColor)
+      root.style.setProperty('--success-color', gameState.colorScheme.successColor)
+      root.style.setProperty('--warning-color', gameState.colorScheme.warningColor)
+      root.style.setProperty('--danger-color', gameState.colorScheme.dangerColor)
+      root.style.setProperty('--bg-dark', gameState.colorScheme.bgDark)
+      root.style.setProperty('--bg-medium', gameState.colorScheme.bgMedium)
+      root.style.setProperty('--bg-light', gameState.colorScheme.bgLight)
+      root.style.setProperty('--text-primary', gameState.colorScheme.textPrimary)
+      root.style.setProperty('--text-secondary', gameState.colorScheme.textSecondary)
+    }
+  }, [gameState.colorScheme])
 
   useEffect(() => {
     localStorage.setItem('gameState', JSON.stringify(gameState))
