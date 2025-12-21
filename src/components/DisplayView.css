@@ -6,6 +6,8 @@
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Force landscape orientation message */
