@@ -699,6 +699,17 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     }
   }
 
+  const handleImageSceneUpload = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImageUrl(e.target.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   // Multi-select functions
   const toggleTileSelection = (tileId, event) => {
     if (event) event.stopPropagation()
@@ -1277,6 +1288,22 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                 placeholder="https://example.com/image.jpg"
               />
             </div>
+            <div className="input-group">
+              <label className="file-upload-label">
+                📁 Upload Image from Device
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSceneUpload}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            </div>
+            {imageUrl && (
+              <div className="image-preview">
+                <img src={imageUrl} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px' }} />
+              </div>
+            )}
             <button
               className="save-scene-button"
               onClick={saveImageScene}
