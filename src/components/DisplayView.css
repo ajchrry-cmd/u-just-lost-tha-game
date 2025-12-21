@@ -484,25 +484,27 @@
 
 .inventory-slots {
   display: flex;
-  gap: 0.2rem;
+  gap: 0.25rem;
   flex: 1;
-  overflow: hidden;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .inventory-slot {
   background: var(--bg-medium);
   border: 1px solid var(--warning-color);
   border-radius: 3px;
-  padding: 0.15rem 0.3rem;
-  font-size: 0.65rem;
+  padding: 0.2rem 0.35rem;
+  font-size: 0.7rem;
   font-weight: bold;
   color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 32px;
-  max-width: 50px;
+  white-space: normal;
+  word-wrap: break-word;
   text-align: center;
+  line-height: 1.2;
+  flex: 1;
+  min-width: 40px;
+  max-width: 120px;
 }
 
 .inventory-slot.empty {
