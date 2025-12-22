@@ -55,15 +55,47 @@ function App() {
     const newSessionId = Math.random().toString(36).substring(2, 8).toUpperCase()
     const sessionRef = doc(db, 'sessions', newSessionId)
 
+    console.log('Creating session:', newSessionId)
+    console.log('Firebase DB:', db)
+
     try {
+      console.log('Attempting to write to Firestore...')
       await setDoc(sessionRef, gameState)
+      console.log('Session created successfully!')
       setSessionId(newSessionId)
       localStorage.setItem('sessionId', newSessionId)
       setIsConnected(true)
       alert(`Session created! Share this code: ${newSessionId}`)
     } catch (error) {
       console.error('Error creating session:', error)
-      alert('Failed to create session. Please try again.')
+      console.error('Error code:', error.code)
+      console.error('Error message:', error.message)
+
+      if (error.code === 'permission-denied') {
+        alert(`Firebase Error: Permission denied.
+
+Please update your Firestore security rules:
+
+1. Go to Firebase Console (console.firebase.google.com)
+2. Select your project: you-just-lost-the-game-5d1d4
+3. Go to Firestore Database > Rules
+4. Replace with:
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /sessions/{sessionId} {
+      allow read, write: if true;
+    }
+  }
+}
+
+5. Click "Publish"
+
+Error: ${error.message}`)
+      } else {
+        alert(`Failed to create session: ${error.message}\n\nCheck browser console for details.`)
+      }
     }
   }
 
@@ -76,18 +108,34 @@ function App() {
 
     const sessionRef = doc(db, 'sessions', sessionInput.toUpperCase())
 
+    console.log('Joining session:', sessionInput.toUpperCase())
+
     try {
+      console.log('Attempting to read from Firestore...')
       const sessionDoc = await getDoc(sessionRef)
       if (sessionDoc.exists()) {
+        console.log('Session found, connecting...')
         setSessionId(sessionInput.toUpperCase())
         localStorage.setItem('sessionId', sessionInput.toUpperCase())
         setIsConnected(true)
       } else {
+        console.log('Session not found')
         alert('Session not found. Please check the code and try again.')
       }
     } catch (error) {
       console.error('Error joining session:', error)
-      alert('Failed to join session. Please try again.')
+      console.error('Error code:', error.code)
+      console.error('Error message:', error.message)
+
+      if (error.code === 'permission-denied') {
+        alert(`Firebase Error: Permission denied.
+
+You need to update Firestore security rules. See the error alert from "Create Session" for instructions.
+
+Error: ${error.message}`)
+      } else {
+        alert(`Failed to join session: ${error.message}\n\nCheck browser console for details.`)
+      }
     }
   }
 
