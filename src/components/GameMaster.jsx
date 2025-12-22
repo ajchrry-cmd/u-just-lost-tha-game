@@ -283,35 +283,6 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     })
   }
 
-  const movePlayerUp = (playerId) => {
-    const player = gameState.players.find(p => p.id === playerId)
-    if (!player) return
-    const newPos = player.position - gameState.mapGrid.cols
-    if (newPos >= 0) updatePlayerPosition(playerId, newPos)
-  }
-
-  const movePlayerDown = (playerId) => {
-    const player = gameState.players.find(p => p.id === playerId)
-    if (!player) return
-    const newPos = player.position + gameState.mapGrid.cols
-    if (newPos < gameState.mapGrid.tiles.length) updatePlayerPosition(playerId, newPos)
-  }
-
-  const movePlayerLeft = (playerId) => {
-    const player = gameState.players.find(p => p.id === playerId)
-    if (!player) return
-    if (player.position % gameState.mapGrid.cols > 0) {
-      updatePlayerPosition(playerId, player.position - 1)
-    }
-  }
-
-  const movePlayerRight = (playerId) => {
-    const player = gameState.players.find(p => p.id === playerId)
-    if (!player) return
-    if ((player.position + 1) % gameState.mapGrid.cols !== 0) {
-      updatePlayerPosition(playerId, player.position + 1)
-    }
-  }
 
   const setCurrentEvent = () => {
     if (newEventTitle.trim()) {
@@ -2265,25 +2236,45 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
 
               <div className="control-group">
                 <h3>📍 Position Control</h3>
-                <p>Current Position: Tile {selectedPlayerData.position}</p>
-                <div className="position-controls">
-                  <button onClick={() => movePlayerUp(selectedPlayer)}>⬆️ Up</button>
-                  <div className="horizontal-controls">
-                    <button onClick={() => movePlayerLeft(selectedPlayer)}>⬅️ Left</button>
-                    <button onClick={() => movePlayerRight(selectedPlayer)}>➡️ Right</button>
-                  </div>
-                  <button onClick={() => movePlayerDown(selectedPlayer)}>⬇️ Down</button>
-                </div>
-                <div className="direct-position">
-                  <label>Or jump to tile:</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max={gameState.mapGrid.tiles.length - 1}
-                    value={selectedPlayerData.position}
-                    onChange={(e) => updatePlayerPosition(selectedPlayer, parseInt(e.target.value) || 0)}
-                  />
-                </div>
+                {gameState.mapMode === 'custom' ? (
+                  <>
+                    <p>Current Position: {(() => {
+                      const currentTile = gameState.customMap?.tiles?.find(t => t.id === selectedPlayerData.position)
+                      return currentTile ? currentTile.label || `Tile ${currentTile.id}` : 'Not on map'
+                    })()}</p>
+                    <div className="direct-position">
+                      <label>Move to tile:</label>
+                      <select
+                        value={selectedPlayerData.position || ''}
+                        onChange={(e) => updatePlayerPosition(selectedPlayer, parseInt(e.target.value))}
+                      >
+                        <option value="">Select a tile...</option>
+                        {(gameState.customMap?.tiles || []).map(tile => (
+                          <option key={tile.id} value={tile.id}>
+                            {tile.label || `Tile ${tile.id}`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p>Current Position: Tile {selectedPlayerData.position}</p>
+                    <div className="direct-position">
+                      <label>Move to tile:</label>
+                      <select
+                        value={selectedPlayerData.position}
+                        onChange={(e) => updatePlayerPosition(selectedPlayer, parseInt(e.target.value))}
+                      >
+                        {gameState.mapGrid.tiles.map((tile, index) => (
+                          <option key={tile.id} value={index}>
+                            Tile {index}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="control-group">
