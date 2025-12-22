@@ -1767,97 +1767,6 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               💾 Save Wheel Scene
             </button>
           </div>
-
-          {/* Battle Wheel Scene */}
-          <div className="scene-editor battle-wheel-editor">
-            <h3>⚔️ Create Battle Wheel</h3>
-            <p className="scene-description">Create a wheel that compares two competitors' power levels</p>
-            <div className="input-group">
-              <label>Scene Name:</label>
-              <input
-                type="text"
-                value={battleSceneName}
-                onChange={(e) => setBattleSceneName(e.target.value)}
-                placeholder="e.g., 'Alex vs Jordan Battle'"
-              />
-            </div>
-
-            <div className="battle-players-section">
-              <h4>Competitor 1</h4>
-              <div className="battle-competitor-inputs">
-                <div className="input-group">
-                  <label>Name:</label>
-                  <input
-                    type="text"
-                    value={battleCompetitor1Name}
-                    onChange={(e) => setBattleCompetitor1Name(e.target.value)}
-                    placeholder="Competitor 1 name"
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label>Power Level:</label>
-                  <input
-                    type="number"
-                    value={battleCompetitor1Power}
-                    onChange={(e) => setBattleCompetitor1Power(parseInt(e.target.value) || 0)}
-                    placeholder="Power"
-                    min="0"
-                    max="999"
-                  />
-                </div>
-              </div>
-
-              <h4>Competitor 2</h4>
-              <div className="battle-competitor-inputs">
-                <div className="input-group">
-                  <label>Name:</label>
-                  <input
-                    type="text"
-                    value={battleCompetitor2Name}
-                    onChange={(e) => setBattleCompetitor2Name(e.target.value)}
-                    placeholder="Competitor 2 name"
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label>Power Level:</label>
-                  <input
-                    type="number"
-                    value={battleCompetitor2Power}
-                    onChange={(e) => setBattleCompetitor2Power(parseInt(e.target.value) || 0)}
-                    placeholder="Power"
-                    min="0"
-                    max="999"
-                  />
-                </div>
-              </div>
-
-              {battleCompetitor1Name.trim() && battleCompetitor2Name.trim() && (() => {
-                const power1 = Math.max(0, battleCompetitor1Power)
-                const power2 = Math.max(0, battleCompetitor2Power)
-                const total = power1 + power2
-                const c1Chance = total > 0 ? Math.round((power1 / total) * 100) : 50
-                const c2Chance = 100 - c1Chance
-                return (
-                  <div className="battle-preview">
-                    <p className="battle-stats">
-                      <strong>{battleCompetitor1Name}</strong>: {c1Chance}% chance |
-                      <strong> {battleCompetitor2Name}</strong>: {c2Chance}% chance
-                    </p>
-                  </div>
-                )
-              })()}
-            </div>
-
-            <button
-              className="save-scene-button"
-              onClick={saveBattleWheelScene}
-              disabled={!battleSceneName.trim() || !battleCompetitor1Name.trim() || !battleCompetitor2Name.trim()}
-            >
-              💾 Create Battle Wheel
-            </button>
-          </div>
         </section>
 
         <section className="section map-editor">
@@ -2547,8 +2456,105 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
           </div>
 
           {(!gameState.customScenes?.filter(s => s.type === 'wheel').length) && (
-            <p className="hint">No spinning wheels yet. Create wheels in Setup Mode.</p>
+            <p className="hint">No spinning wheels yet. Create a battle wheel below or add custom wheels in Setup Mode.</p>
           )}
+        </section>
+
+        <section className="section battle-wheel-creator">
+          <h2>⚔️ Create Battle Wheel</h2>
+          <p className="scene-description">Create a wheel that compares two competitors' power levels</p>
+
+          <div className="battle-wheel-form">
+            <div className="input-group">
+              <label>Scene Name:</label>
+              <input
+                type="text"
+                value={battleSceneName}
+                onChange={(e) => setBattleSceneName(e.target.value)}
+                placeholder="e.g., 'Alex vs Jordan Battle'"
+              />
+            </div>
+
+            <div className="battle-competitors">
+              <div className="competitor-section">
+                <h4>Competitor 1</h4>
+                <div className="competitor-inputs">
+                  <div className="input-group">
+                    <label>Name:</label>
+                    <input
+                      type="text"
+                      value={battleCompetitor1Name}
+                      onChange={(e) => setBattleCompetitor1Name(e.target.value)}
+                      placeholder="Competitor 1 name"
+                    />
+                  </div>
+
+                  <div className="input-group">
+                    <label>Power Level:</label>
+                    <input
+                      type="number"
+                      value={battleCompetitor1Power}
+                      onChange={(e) => setBattleCompetitor1Power(parseInt(e.target.value) || 0)}
+                      placeholder="Power"
+                      min="0"
+                      max="999"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="competitor-section">
+                <h4>Competitor 2</h4>
+                <div className="competitor-inputs">
+                  <div className="input-group">
+                    <label>Name:</label>
+                    <input
+                      type="text"
+                      value={battleCompetitor2Name}
+                      onChange={(e) => setBattleCompetitor2Name(e.target.value)}
+                      placeholder="Competitor 2 name"
+                    />
+                  </div>
+
+                  <div className="input-group">
+                    <label>Power Level:</label>
+                    <input
+                      type="number"
+                      value={battleCompetitor2Power}
+                      onChange={(e) => setBattleCompetitor2Power(parseInt(e.target.value) || 0)}
+                      placeholder="Power"
+                      min="0"
+                      max="999"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {battleCompetitor1Name.trim() && battleCompetitor2Name.trim() && (() => {
+              const power1 = Math.max(0, battleCompetitor1Power)
+              const power2 = Math.max(0, battleCompetitor2Power)
+              const total = power1 + power2
+              const c1Chance = total > 0 ? Math.round((power1 / total) * 100) : 50
+              const c2Chance = 100 - c1Chance
+              return (
+                <div className="battle-preview">
+                  <p className="battle-stats">
+                    <strong>{battleCompetitor1Name}</strong>: {c1Chance}% chance |
+                    <strong> {battleCompetitor2Name}</strong>: {c2Chance}% chance
+                  </p>
+                </div>
+              )
+            })()}
+
+            <button
+              className="primary-button"
+              onClick={saveBattleWheelScene}
+              disabled={!battleSceneName.trim() || !battleCompetitor1Name.trim() || !battleCompetitor2Name.trim()}
+            >
+              💾 Create Battle Wheel
+            </button>
+          </div>
         </section>
           </>
         )}
