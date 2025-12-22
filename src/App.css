@@ -50,8 +50,10 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 2rem;
+  padding: 2rem 0.5rem;
   text-align: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .home-screen h1 {
