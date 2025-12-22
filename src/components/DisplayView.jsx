@@ -1,33 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import './DisplayView.css'
 
-export default function DisplayView({ onBack }) {
-  const [gameState, setGameState] = useState(() => {
-    const saved = localStorage.getItem('gameState')
-    return saved ? JSON.parse(saved) : {
-      players: [],
-      currentEvent: null,
-      gameTitle: 'Epic Game Night',
-      theme: 'default',
-      mapGrid: {
-        rows: 5,
-        cols: 5,
-        tiles: Array(25).fill().map((_, i) => ({
-          id: i,
-          type: 'normal',
-          label: ''
-        }))
-      }
-    }
-  })
-
+export default function DisplayView({ gameState, onBack }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [wheelRotation, setWheelRotation] = useState(0)
   const [wheelResult, setWheelResult] = useState(null)
   const lastSpinTrigger = useRef(null)
 
-  const currentScene = gameState.currentScene?.type || 'game'
-  const sceneData = gameState.currentScene?.data || {}
+  const currentScene = gameState?.currentScene?.type || 'game'
+  const sceneData = gameState?.currentScene?.data || {}
 
   const spinWheel = useCallback(() => {
     if (isSpinning || !sceneData.outcomes || sceneData.outcomes.length < 2) return
@@ -66,48 +47,30 @@ export default function DisplayView({ onBack }) {
     }, 4000)
   }, [isSpinning, sceneData.outcomes, wheelRotation])
 
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const saved = localStorage.getItem('gameState')
-      if (saved) {
-        setGameState(JSON.parse(saved))
-      }
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-
-    const interval = setInterval(handleStorageChange, 500)
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange)
-      clearInterval(interval)
-    }
-  }, [])
-
   // Watch for wheel spin trigger from Game Master
   useEffect(() => {
     if (
-      gameState.wheelSpinTrigger &&
-      gameState.currentScene?.type === 'wheel' &&
+      gameState?.wheelSpinTrigger &&
+      gameState?.currentScene?.type === 'wheel' &&
       !isSpinning &&
       gameState.wheelSpinTrigger !== lastSpinTrigger.current
     ) {
       lastSpinTrigger.current = gameState.wheelSpinTrigger
       spinWheel()
     }
-  }, [gameState.wheelSpinTrigger, gameState.currentScene?.type, isSpinning, spinWheel])
+  }, [gameState?.wheelSpinTrigger, gameState?.currentScene?.type, isSpinning, spinWheel])
 
   const getPlayersAtPosition = (position) => {
-    return gameState.players.filter(p => p.position === position)
+    return gameState?.players?.filter(p => p.position === position) || []
   }
 
   const getPlayersAtTile = (tileId) => {
-    return gameState.players.filter(p => p.position === tileId)
+    return gameState?.players?.filter(p => p.position === tileId) || []
   }
 
   const renderGameView = () => {
-    const isCustomMode = gameState.mapMode === 'custom'
-    const customTiles = gameState.customMap?.tiles || []
+    const isCustomMode = gameState?.mapMode === 'custom'
+    const customTiles = gameState?.customMap?.tiles || []
 
     return (
       <div className="display-content">
@@ -197,10 +160,10 @@ export default function DisplayView({ onBack }) {
             </div>
           ) : (
             <div className="game-map" style={{
-              gridTemplateColumns: `repeat(${gameState.mapGrid.cols}, 1fr)`,
-              gridTemplateRows: `repeat(${gameState.mapGrid.rows}, 1fr)`
+              gridTemplateColumns: `repeat(${gameState?.mapGrid?.cols || 5}, 1fr)`,
+              gridTemplateRows: `repeat(${gameState?.mapGrid?.rows || 5}, 1fr)`
             }}>
-              {gameState.mapGrid.tiles.map((tile, index) => {
+              {(gameState?.mapGrid?.tiles || []).map((tile, index) => {
                 const playersHere = getPlayersAtPosition(index)
                 return (
                   <div key={tile.id} className="map-tile" data-tile-type={tile.type}>
@@ -235,14 +198,14 @@ export default function DisplayView({ onBack }) {
         </section>
 
       <section className="players-stats">
-        {gameState.players.length === 0 && (
+        {(!gameState?.players || gameState.players.length === 0) && (
           <div className="empty-state">
             <p>No players yet!</p>
             <p className="hint">Add players from the Game Master control panel</p>
           </div>
         )}
 
-        {gameState.players.map(player => (
+        {(gameState?.players || []).map(player => (
           <div
             key={player.id}
             className={`player-stat-card ${player.status}`}
@@ -454,10 +417,10 @@ export default function DisplayView({ onBack }) {
       <button className="back-button-display" onClick={onBack}>← Exit Display</button>
 
       <header className="display-header">
-        <h1>{gameState.gameTitle}</h1>
+        <h1>{gameState?.gameTitle || 'Epic Game Night'}</h1>
       </header>
 
-      {gameState.currentEvent && currentScene === 'game' && (
+      {gameState?.currentEvent && currentScene === 'game' && (
         <section className="event-display">
           <div className="event-content">
             <h2>{gameState.currentEvent.title}</h2>
