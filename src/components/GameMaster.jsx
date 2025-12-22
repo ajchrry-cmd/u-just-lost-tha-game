@@ -30,8 +30,10 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
 
   // Battle wheel state
   const [battleSceneName, setBattleSceneName] = useState('')
-  const [battlePlayer1, setBattlePlayer1] = useState('')
-  const [battlePlayer2, setBattlePlayer2] = useState('')
+  const [battleCompetitor1Name, setBattleCompetitor1Name] = useState('')
+  const [battleCompetitor1Power, setBattleCompetitor1Power] = useState(50)
+  const [battleCompetitor2Name, setBattleCompetitor2Name] = useState('')
+  const [battleCompetitor2Power, setBattleCompetitor2Power] = useState(50)
 
   // Map editor state
   const [selectedTiles, setSelectedTiles] = useState([])
@@ -476,18 +478,13 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   }
 
   const saveBattleWheelScene = () => {
-    if (battleSceneName.trim() && battlePlayer1 && battlePlayer2) {
-      const player1Data = gameState.players.find(p => p.id === battlePlayer1)
-      const player2Data = gameState.players.find(p => p.id === battlePlayer2)
-
-      if (!player1Data || !player2Data) return
-
-      const power1 = player1Data.stats?.power || 50
-      const power2 = player2Data.stats?.power || 50
+    if (battleSceneName.trim() && battleCompetitor1Name.trim() && battleCompetitor2Name.trim()) {
+      const power1 = Math.max(0, battleCompetitor1Power)
+      const power2 = Math.max(0, battleCompetitor2Power)
       const totalPower = power1 + power2
 
-      const player1Percentage = totalPower > 0 ? Math.round((power1 / totalPower) * 100) : 50
-      const player2Percentage = 100 - player1Percentage
+      const competitor1Percentage = totalPower > 0 ? Math.round((power1 / totalPower) * 100) : 50
+      const competitor2Percentage = 100 - competitor1Percentage
 
       setGameState({
         ...gameState,
@@ -502,26 +499,28 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               outcomes: [
                 {
                   id: Date.now(),
-                  name: `${player1Data.name} Wins`,
-                  percentage: player1Percentage
+                  name: `${battleCompetitor1Name} Wins`,
+                  percentage: competitor1Percentage
                 },
                 {
                   id: Date.now() + 1,
-                  name: `${player2Data.name} Wins`,
-                  percentage: player2Percentage
+                  name: `${battleCompetitor2Name} Wins`,
+                  percentage: competitor2Percentage
                 }
               ],
               battleInfo: {
-                player1: { id: player1Data.id, name: player1Data.name, power: power1 },
-                player2: { id: player2Data.id, name: player2Data.name, power: power2 }
+                competitor1: { name: battleCompetitor1Name, power: power1 },
+                competitor2: { name: battleCompetitor2Name, power: power2 }
               }
             }
           }
         ]
       })
       setBattleSceneName('')
-      setBattlePlayer1('')
-      setBattlePlayer2('')
+      setBattleCompetitor1Name('')
+      setBattleCompetitor1Power(50)
+      setBattleCompetitor2Name('')
+      setBattleCompetitor2Power(50)
     }
   }
 
@@ -1772,7 +1771,7 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
           {/* Battle Wheel Scene */}
           <div className="scene-editor battle-wheel-editor">
             <h3>⚔️ Create Battle Wheel</h3>
-            <p className="scene-description">Create a wheel that compares two players' power levels</p>
+            <p className="scene-description">Create a wheel that compares two competitors' power levels</p>
             <div className="input-group">
               <label>Scene Name:</label>
               <input
@@ -1784,52 +1783,67 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
             </div>
 
             <div className="battle-players-section">
-              <h4>Select Players</h4>
-              <div className="battle-player-selects">
+              <h4>Competitor 1</h4>
+              <div className="battle-competitor-inputs">
                 <div className="input-group">
-                  <label>Player 1:</label>
-                  <select
-                    value={battlePlayer1}
-                    onChange={(e) => setBattlePlayer1(e.target.value)}
-                  >
-                    <option value="">Select player...</option>
-                    {gameState.players?.map(player => (
-                      <option key={player.id} value={player.id}>
-                        {player.name} (⚡ {player.stats?.power || 50})
-                      </option>
-                    ))}
-                  </select>
+                  <label>Name:</label>
+                  <input
+                    type="text"
+                    value={battleCompetitor1Name}
+                    onChange={(e) => setBattleCompetitor1Name(e.target.value)}
+                    placeholder="Competitor 1 name"
+                  />
                 </div>
 
                 <div className="input-group">
-                  <label>Player 2:</label>
-                  <select
-                    value={battlePlayer2}
-                    onChange={(e) => setBattlePlayer2(e.target.value)}
-                  >
-                    <option value="">Select player...</option>
-                    {gameState.players?.filter(p => p.id !== battlePlayer1).map(player => (
-                      <option key={player.id} value={player.id}>
-                        {player.name} (⚡ {player.stats?.power || 50})
-                      </option>
-                    ))}
-                  </select>
+                  <label>Power Level:</label>
+                  <input
+                    type="number"
+                    value={battleCompetitor1Power}
+                    onChange={(e) => setBattleCompetitor1Power(parseInt(e.target.value) || 0)}
+                    placeholder="Power"
+                    min="0"
+                    max="999"
+                  />
                 </div>
               </div>
 
-              {battlePlayer1 && battlePlayer2 && (() => {
-                const p1 = gameState.players.find(p => p.id === battlePlayer1)
-                const p2 = gameState.players.find(p => p.id === battlePlayer2)
-                const power1 = p1?.stats?.power || 50
-                const power2 = p2?.stats?.power || 50
+              <h4>Competitor 2</h4>
+              <div className="battle-competitor-inputs">
+                <div className="input-group">
+                  <label>Name:</label>
+                  <input
+                    type="text"
+                    value={battleCompetitor2Name}
+                    onChange={(e) => setBattleCompetitor2Name(e.target.value)}
+                    placeholder="Competitor 2 name"
+                  />
+                </div>
+
+                <div className="input-group">
+                  <label>Power Level:</label>
+                  <input
+                    type="number"
+                    value={battleCompetitor2Power}
+                    onChange={(e) => setBattleCompetitor2Power(parseInt(e.target.value) || 0)}
+                    placeholder="Power"
+                    min="0"
+                    max="999"
+                  />
+                </div>
+              </div>
+
+              {battleCompetitor1Name.trim() && battleCompetitor2Name.trim() && (() => {
+                const power1 = Math.max(0, battleCompetitor1Power)
+                const power2 = Math.max(0, battleCompetitor2Power)
                 const total = power1 + power2
-                const p1Chance = Math.round((power1 / total) * 100)
-                const p2Chance = 100 - p1Chance
+                const c1Chance = total > 0 ? Math.round((power1 / total) * 100) : 50
+                const c2Chance = 100 - c1Chance
                 return (
                   <div className="battle-preview">
                     <p className="battle-stats">
-                      <strong>{p1?.name}</strong>: {p1Chance}% chance |
-                      <strong> {p2?.name}</strong>: {p2Chance}% chance
+                      <strong>{battleCompetitor1Name}</strong>: {c1Chance}% chance |
+                      <strong> {battleCompetitor2Name}</strong>: {c2Chance}% chance
                     </p>
                   </div>
                 )
@@ -1839,7 +1853,7 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
             <button
               className="save-scene-button"
               onClick={saveBattleWheelScene}
-              disabled={!battleSceneName.trim() || !battlePlayer1 || !battlePlayer2 || battlePlayer1 === battlePlayer2}
+              disabled={!battleSceneName.trim() || !battleCompetitor1Name.trim() || !battleCompetitor2Name.trim()}
             >
               💾 Create Battle Wheel
             </button>
