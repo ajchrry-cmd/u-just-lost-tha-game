@@ -28,6 +28,11 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
   const [newOutcomeName, setNewOutcomeName] = useState('')
   const [newOutcomePercentage] = useState(25)
 
+  // Battle wheel state
+  const [battleSceneName, setBattleSceneName] = useState('')
+  const [battlePlayer1, setBattlePlayer1] = useState('')
+  const [battlePlayer2, setBattlePlayer2] = useState('')
+
   // Map editor state
   const [selectedTiles, setSelectedTiles] = useState([])
   const [newTileLabel, setNewTileLabel] = useState('')
@@ -467,6 +472,56 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
       })
       setWheelSceneName('')
       setWheelOutcomes([])
+    }
+  }
+
+  const saveBattleWheelScene = () => {
+    if (battleSceneName.trim() && battlePlayer1 && battlePlayer2) {
+      const player1Data = gameState.players.find(p => p.id === battlePlayer1)
+      const player2Data = gameState.players.find(p => p.id === battlePlayer2)
+
+      if (!player1Data || !player2Data) return
+
+      const power1 = player1Data.stats?.power || 50
+      const power2 = player2Data.stats?.power || 50
+      const totalPower = power1 + power2
+
+      const player1Percentage = totalPower > 0 ? Math.round((power1 / totalPower) * 100) : 50
+      const player2Percentage = 100 - player1Percentage
+
+      setGameState({
+        ...gameState,
+        customScenes: [
+          ...gameState.customScenes,
+          {
+            id: Date.now(),
+            name: battleSceneName,
+            type: 'wheel',
+            subtype: 'battle',
+            data: {
+              outcomes: [
+                {
+                  id: Date.now(),
+                  name: `${player1Data.name} Wins`,
+                  percentage: player1Percentage
+                },
+                {
+                  id: Date.now() + 1,
+                  name: `${player2Data.name} Wins`,
+                  percentage: player2Percentage
+                }
+              ],
+              battleInfo: {
+                player1: { id: player1Data.id, name: player1Data.name, power: power1 },
+                player2: { id: player2Data.id, name: player2Data.name, power: power2 }
+              }
+            }
+          }
+        ]
+      })
+      setBattleSceneName('')
+      setBattlePlayer1('')
+      setBattlePlayer2('')
     }
   }
 
@@ -1713,6 +1768,82 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
               💾 Save Wheel Scene
             </button>
           </div>
+
+          {/* Battle Wheel Scene */}
+          <div className="scene-editor battle-wheel-editor">
+            <h3>⚔️ Create Battle Wheel</h3>
+            <p className="scene-description">Create a wheel that compares two players' power levels</p>
+            <div className="input-group">
+              <label>Scene Name:</label>
+              <input
+                type="text"
+                value={battleSceneName}
+                onChange={(e) => setBattleSceneName(e.target.value)}
+                placeholder="e.g., 'Alex vs Jordan Battle'"
+              />
+            </div>
+
+            <div className="battle-players-section">
+              <h4>Select Players</h4>
+              <div className="battle-player-selects">
+                <div className="input-group">
+                  <label>Player 1:</label>
+                  <select
+                    value={battlePlayer1}
+                    onChange={(e) => setBattlePlayer1(e.target.value)}
+                  >
+                    <option value="">Select player...</option>
+                    {gameState.players?.map(player => (
+                      <option key={player.id} value={player.id}>
+                        {player.name} (⚡ {player.stats?.power || 50})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="input-group">
+                  <label>Player 2:</label>
+                  <select
+                    value={battlePlayer2}
+                    onChange={(e) => setBattlePlayer2(e.target.value)}
+                  >
+                    <option value="">Select player...</option>
+                    {gameState.players?.filter(p => p.id !== battlePlayer1).map(player => (
+                      <option key={player.id} value={player.id}>
+                        {player.name} (⚡ {player.stats?.power || 50})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {battlePlayer1 && battlePlayer2 && (() => {
+                const p1 = gameState.players.find(p => p.id === battlePlayer1)
+                const p2 = gameState.players.find(p => p.id === battlePlayer2)
+                const power1 = p1?.stats?.power || 50
+                const power2 = p2?.stats?.power || 50
+                const total = power1 + power2
+                const p1Chance = Math.round((power1 / total) * 100)
+                const p2Chance = 100 - p1Chance
+                return (
+                  <div className="battle-preview">
+                    <p className="battle-stats">
+                      <strong>{p1?.name}</strong>: {p1Chance}% chance |
+                      <strong> {p2?.name}</strong>: {p2Chance}% chance
+                    </p>
+                  </div>
+                )
+              })()}
+            </div>
+
+            <button
+              className="save-scene-button"
+              onClick={saveBattleWheelScene}
+              disabled={!battleSceneName.trim() || !battlePlayer1 || !battlePlayer2 || battlePlayer1 === battlePlayer2}
+            >
+              💾 Create Battle Wheel
+            </button>
+          </div>
         </section>
 
         <section className="section map-editor">
@@ -2279,14 +2410,19 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
                 <div className="inventory-controls">
                   {selectedPlayerData.inventory.length < 4 && (
                     <div className="add-item">
-                      <input
-                        type="text"
+                      <select
                         value={newItemName}
                         onChange={(e) => setNewItemName(e.target.value)}
-                        placeholder="Item name"
-                        onKeyPress={(e) => e.key === 'Enter' && addItemToPlayer(selectedPlayer)}
-                      />
-                      <button onClick={() => addItemToPlayer(selectedPlayer)}>Add Item</button>
+                        style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '2px solid var(--bg-light)', background: 'var(--bg-medium)', color: 'var(--text-primary)' }}
+                      >
+                        <option value="">Select item from shop...</option>
+                        {gameState.shopItems?.map(item => (
+                          <option key={item.id} value={item.name}>
+                            {item.name} (💰{item.price})
+                          </option>
+                        ))}
+                      </select>
+                      <button onClick={() => addItemToPlayer(selectedPlayer)} disabled={!newItemName}>Give Item</button>
                     </div>
                   )}
                   <div className="items-list">
