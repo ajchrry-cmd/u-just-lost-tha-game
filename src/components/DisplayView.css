@@ -87,8 +87,10 @@
 
 .display-header {
   text-align: center;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.25rem;
   background: rgba(15, 52, 96, 0.5);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .display-header h1 {
@@ -103,10 +105,12 @@
 /* Event Display */
 .event-display {
   background: linear-gradient(135deg, var(--secondary-color), #FF5252);
-  padding: 0.75rem 1.5rem;
-  margin: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0.25rem;
   border-radius: var(--border-radius);
   box-shadow: 0 4px 8px rgba(255, 107, 107, 0.4);
+  width: calc(100% - 0.5rem);
+  box-sizing: border-box;
   animation: slideDown 0.5s ease-out;
 }
 
@@ -144,9 +148,11 @@
   display: grid;
   grid-template-columns: 1.8fr 1fr;
   gap: 0.75rem;
-  padding: 0.5rem 1rem 1rem 1rem;
+  padding: 0.5rem 0.25rem 1rem 0.25rem;
   overflow: hidden;
   min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Map Section */
@@ -551,7 +557,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 1rem 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
   overflow: hidden;
 }
 
@@ -629,7 +637,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem 0.5rem;
   overflow: hidden;
 }
 
@@ -656,7 +666,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2rem 0.5rem;
   overflow: auto;
 }
 
@@ -683,7 +695,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem 0.5rem;
   gap: 2rem;
 }
 
