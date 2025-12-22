@@ -477,8 +477,8 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
     }
   }
 
-  const saveBattleWheelScene = () => {
-    if (battleSceneName.trim() && battleCompetitor1Name.trim() && battleCompetitor2Name.trim()) {
+  const activateBattleWheel = () => {
+    if (battleCompetitor1Name.trim() && battleCompetitor2Name.trim()) {
       const power1 = Math.max(0, battleCompetitor1Power)
       const power2 = Math.max(0, battleCompetitor2Power)
       const totalPower = power1 + power2
@@ -486,36 +486,24 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
       const competitor1Percentage = totalPower > 0 ? Math.round((power1 / totalPower) * 100) : 50
       const competitor2Percentage = 100 - competitor1Percentage
 
-      setGameState({
-        ...gameState,
-        customScenes: [
-          ...gameState.customScenes,
+      const battleWheelData = {
+        outcomes: [
           {
             id: Date.now(),
-            name: battleSceneName,
-            type: 'wheel',
-            subtype: 'battle',
-            data: {
-              outcomes: [
-                {
-                  id: Date.now(),
-                  name: `${battleCompetitor1Name} Wins`,
-                  percentage: competitor1Percentage
-                },
-                {
-                  id: Date.now() + 1,
-                  name: `${battleCompetitor2Name} Wins`,
-                  percentage: competitor2Percentage
-                }
-              ],
-              battleInfo: {
-                competitor1: { name: battleCompetitor1Name, power: power1 },
-                competitor2: { name: battleCompetitor2Name, power: power2 }
-              }
-            }
+            name: `${battleCompetitor1Name} Wins`,
+            percentage: competitor1Percentage
+          },
+          {
+            id: Date.now() + 1,
+            name: `${battleCompetitor2Name} Wins`,
+            percentage: competitor2Percentage
           }
         ]
-      })
+      }
+
+      switchScene('wheel', battleWheelData)
+
+      // Clear the form
       setBattleSceneName('')
       setBattleCompetitor1Name('')
       setBattleCompetitor1Power(50)
@@ -2461,20 +2449,10 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
         </section>
 
         <section className="section battle-wheel-creator">
-          <h2>⚔️ Create Battle Wheel</h2>
-          <p className="scene-description">Create a wheel that compares two competitors' power levels</p>
+          <h2>⚔️ Battle Wheel</h2>
+          <p className="scene-description">Create a one-time battle wheel based on power levels</p>
 
           <div className="battle-wheel-form">
-            <div className="input-group">
-              <label>Scene Name:</label>
-              <input
-                type="text"
-                value={battleSceneName}
-                onChange={(e) => setBattleSceneName(e.target.value)}
-                placeholder="e.g., 'Alex vs Jordan Battle'"
-              />
-            </div>
-
             <div className="battle-competitors">
               <div className="competitor-section">
                 <h4>Competitor 1</h4>
@@ -2549,10 +2527,10 @@ export default function GameMaster({ gameState, setGameState, onBack }) {
 
             <button
               className="primary-button"
-              onClick={saveBattleWheelScene}
-              disabled={!battleSceneName.trim() || !battleCompetitor1Name.trim() || !battleCompetitor2Name.trim()}
+              onClick={activateBattleWheel}
+              disabled={!battleCompetitor1Name.trim() || !battleCompetitor2Name.trim()}
             >
-              💾 Create Battle Wheel
+              ⚔️ Start Battle
             </button>
           </div>
         </section>
